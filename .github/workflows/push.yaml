@@ -1,0 +1,26 @@
+name: push
+on:
+  push:
+    branches: ["*"]
+env:
+  TERM: xterm-color
+jobs:
+  push:
+    name: Push Workflow
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+    - name: Build Toolbox image
+      run: make build
+    - name: Lint shell files
+      run: make shell-lint
+    - name: Draft release
+      if: github.ref == 'refs/heads/master'
+      uses: release-drafter/release-drafter@v5
+      with:
+        config-name: release-config.yaml
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
