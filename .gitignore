@@ -1,0 +1,10 @@
+target/
+.idea/
+.terraform/
+*.swp
+*.orig
+*.log
+*~
+\#*\#
+.\#*
+.DS_Store

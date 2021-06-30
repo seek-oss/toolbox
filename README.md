@@ -1,4 +1,4 @@
 # Toolbox
 
-Toolbox provides a set of standardised build tooling and workflows for
+Toolbox provides a standard set of build tooling and workflows for
 infrastructure-related projects.
