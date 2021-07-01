@@ -91,10 +91,39 @@ current_aws_account_id() {
 }
 
 ##
-## Print Toolbox version information.
+## Returns Toolbox version information.
+##
+toolbox_version_info() {
+  local version
+  version="$(toolbox_version)"
+  echo "Toolbox version: ${version:-unknown}"
+}
+
+##
+## Toolboxs Toolbox version semantic version string.
 ##
 toolbox_version() {
-  echo "Toolbox version: ${TOOLBOX_VERSION:-unknown}"
+  echo "${TOOLBOX_VERSION:-}"
+}
+
+##
+## Upgrades Toolbox to the latest released version.
+##
+toolbox_upgrade() {
+  local latest_version
+  latest_version="$(curl -s "https://api.github.com/repos/seek-oss/toolbox/releases/latest" \
+    | jq -r .tag_name \
+    | sed 's/^v//')"
+
+  if [[ "$(toolbox_version)" == "${latest_version}" ]]; then
+    echo "You are already using the latest Toolbox version: ${latest_version}" >&2
+    return 0
+  fi
+
+  rm -rf /tmp/toolbox
+  mkdir -p /tmp/toolbox
+  curl -so /tmp/toolbox/toolbox.zip \
+    "https://github.com/seek-oss/toolbox/releases/download/v${latest_version}/toolbox.zip"
 }
 
 # Common variables.
