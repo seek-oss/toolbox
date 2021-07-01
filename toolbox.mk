@@ -102,10 +102,10 @@ clean:
 ##
 ## Toolbox internal targets.
 ##
-.PHONY: toolbox-version
-toolbox-version:
+.PHONY: toolbox-version toolbox-upgrade
+toolbox-version toolbox-upgrade:
 	@$(call banner,$@)
-	@$(call toolbox,toolbox internal version)
+	@$(call toolbox,toolbox internal "$(@:toolbox-%=%)")
 
 ##
 ## Terraform targets that DON'T require a workspace.
