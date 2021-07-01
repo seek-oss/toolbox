@@ -52,6 +52,7 @@ define HELP
 | clean                | Deletes the target/ and .terraform/ directories.                          |
 |----------------------+---------------------------------------------------------------------------|
 | toolbox-version      | Prints Toolbox version information.                                       |
+| toolbox-upgrade      | Upgrades the version of Toolbox to latest.                                |
 |----------------------+---------------------------------------------------------------------------|
 | terraform-lint       | Lints Terraform files in the current repository.                          |
 | terraform-init       | Initialises Terraform.                                                    |

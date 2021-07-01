@@ -115,15 +115,8 @@ toolbox_upgrade() {
     | jq -r .tag_name \
     | sed 's/^v//')"
 
-  if [[ "$(toolbox_version)" == "${latest_version}" ]]; then
-    echo "You are already using the latest Toolbox version: ${latest_version}" >&2
-    return 0
-  fi
-
-  rm -rf /tmp/toolbox
-  mkdir -p /tmp/toolbox
-  curl -so /tmp/toolbox/toolbox.zip \
-    "https://github.com/seek-oss/toolbox/releases/download/v${latest_version}/toolbox.zip"
+  curl -so toolbox.mk \
+    "https://github.com/seek-oss/toolbox/releases/download/v${latest_version}/toolbox.mk"
 }
 
 # Common variables.
