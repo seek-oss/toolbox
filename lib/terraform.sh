@@ -121,7 +121,7 @@ tf_plan_local() {
 ## This function assumes that a plan file exists at ${_tf_plan_file}.
 ##
 tf_apply() {
-  workspace
+  tf_workspace
 
   # We expect that a plan has already been created.
   if [[ ! -f "${_tf_plan_file}" ]]; then
@@ -137,7 +137,7 @@ tf_apply() {
 ## Refresh the Terraform workspace.
 ##
 tf_refresh() {
-  workspace
+  tf_workspace
 
   info_msg "Refreshing Terraform workspace ${_arg_workspace}"
   terraform refresh -var-file="$(_tf_var_file)"
@@ -148,7 +148,7 @@ tf_refresh() {
 ## user to confirm destruction prior to going ahead.
 ##
 tf_destroy() {
-  workspace
+  tf_workspace
 
   info_msg "Destroying Terraform resources in workspace ${_arg_workspace}"
   TF_IN_AUTOMATION=0 terraform destroy -var-file="$(_tf_var_file)"
@@ -158,7 +158,7 @@ tf_destroy() {
 ## Launch a Terraform console session.
 ##
 tf_console() {
-  workspace
+  tf_workspace
 
   info_msg "Starting Terraform console for workspace ${_arg_workspace}"
   terraform console -var-file="$(_tf_var_file)"
