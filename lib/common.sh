@@ -19,14 +19,14 @@ if [[ "${_arg_command1}" != internal ]]; then
   if [[ -n "${_arg_config}" ]]; then
     # Config file was specified on the command line - ensure it exists.
     if [[ ! -f "${_arg_config}" ]]; then
-      die "Config file ${_arg_config} specified by -c/--config argument does not exist."
+      die "Toolbox config file ${_arg_config} specified by -c/--config argument does not exist."
     fi
     _config_file="${_arg_config}"
   else
     # No config file was specified on the command line. First, check TOOLBOX_CONFIG_FILE variable.
     if [[ -n "${TOOLBOX_CONFIG_FILE:-}" ]]; then
       if [[ ! -f "${TOOLBOX_CONFIG_FILE}" ]]; then
-        die "Config file ${TOOLBOX_CONFIG_FILE} specified by TOOLBOX_CONFIG_FILE variable does not exist."
+        die "Toolbox config file ${TOOLBOX_CONFIG_FILE} specified by TOOLBOX_CONFIG_FILE variable does not exist."
       fi
       _config_file="${TOOLBOX_CONFIG_FILE}"
     fi
@@ -41,7 +41,7 @@ if [[ "${_arg_command1}" != internal ]]; then
 
     # Ensure a config file has been found.
     if [[ -z "${_config_file}" ]]; then
-      die "No config file could be found."
+      die "No Toolbox config file could be found."
     fi
   fi
 
@@ -115,7 +115,9 @@ toolbox_upgrade() {
     | jq -r .tag_name \
     | sed 's/^v//')"
 
-  curl -so toolbox.mk \
+  echo "Upgrading to Toolbox version ${latest_version}" >&2
+
+  curl -Lso toolbox.mk \
     "https://github.com/seek-oss/toolbox/releases/download/v${latest_version}/toolbox.mk"
 }
 
