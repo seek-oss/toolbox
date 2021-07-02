@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Tell shellcheck we'll be referencing definitions in the source file but don't
-# actually source anything as all sourcing takes place up in bin/toolbox.sh.
+# actually source anything as all sourcing takes place up in bin.sh.
 # shellcheck source=lib/common.sh
 # shellcheck disable=SC1091
 source /dev/null
@@ -82,7 +82,7 @@ tf_workspace() {
       return 0
     fi
   done < <(jq -r \
-    '.toolbox.terraform.workspaces[]
+    '.terraform.workspaces[]
     | [.name, .var_file, .aws_account_id]
     | @tsv' <<< "${config_json}")
 
@@ -185,7 +185,7 @@ _tf_var_file() {
       return 0
     fi
   done < <(jq -r \
-    '.toolbox.terraform.workspaces[]
+    '.terraform.workspaces[]
     | [.name, .var_file]
     | @tsv' <<< "${config_json}")
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Tell shellcheck we'll be referencing definitions in the source file but don't
-# actually source anything as all sourcing takes place up in bin/toolbox.sh.
+# actually source anything as all sourcing takes place up in bin.sh.
 # shellcheck source=lib/common.sh
 # shellcheck disable=SC1091
 source /dev/null
@@ -56,7 +56,7 @@ _sh_includes() {
   local type="${1}"
   local args ignore_patterns
   readarray -t ignore_patterns < <(jq -r \
-    ".toolbox.shell.lint.${type}.ignore // [] | .[]" <<< "${config_json}")
+    ".shell.lint.${type}.ignore // [] | .[]" <<< "${config_json}")
   for p in "${ignore_patterns[@]}"; do
     args+=(-not -path "${p}")
   done

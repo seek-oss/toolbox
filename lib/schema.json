@@ -2,202 +2,195 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "additionalProperties": true,
-  "required": ["toolbox"],
+  "required": [],
   "properties": {
-    "toolbox": {
+    "terraform": {
       "type": "object",
       "additionalProperties": false,
       "required": [],
       "properties": {
-	"terraform": {
-	  "type": "object",
-	  "additionalProperties": false,
-	  "required": [],
-	  "properties": {
-            "global_region": {
-              "type": "string",
-              "pattern": "^[a-z0-9\\-]+$"
-            },
-	    "lint": {
-	      "type": "object",
-	      "additionalProperties": false,
-	      "required": ["queue"],
-	      "properties": {
-		"queue": {
-		  "type": "string"
-		}
-	      }
-	    },
-	    "validate": {
-	      "type": "object",
-	      "additionalProperties": false,
-	      "required": ["queue"],
-	      "properties": {
-		"queue": {
-		  "type": "string"
-		}
-	      }
-	    },
-	    "artifacts": {
-	      "type": "object",
-	      "additionalProperties": false,
-	      "required": [],
-	      "properties": {
-		"upload": {
-		  "type": "array",
-		  "items": {
-		    "type": "object",
-		    "additionalProperties": false,
-		    "required": ["from", "to"],
-		    "properties": {
-		      "from": {
-			"type": "string"
-		      },
-		      "to": {
-			"type": "string"
-		      }
-		    }
-		  }
-		},
-		"download": {
-		  "type": "array",
-		  "items": {
-		    "type": "object",
-		    "additionalProperties": false,
-		    "required": ["from", "to"],
-		    "properties": {
-		      "from": {
-			"type": "string"
-		      },
-		      "to": {
-			"type": "string"
-		      }
-		    }
-		  }
-		}
-	      }
-	    },
-            "workspaces": {
+        "global_region": {
+          "type": "string",
+          "pattern": "^[a-z0-9\\-]+$"
+        },
+        "lint": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["queue"],
+          "properties": {
+            "queue": {
+              "type": "string"
+            }
+          }
+        },
+        "validate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["queue"],
+          "properties": {
+            "queue": {
+              "type": "string"
+            }
+          }
+        },
+        "artifacts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "upload": {
               "type": "array",
               "items": {
-		"type": "object",
-		"additionalProperties": false,
-		"required": ["name", "var_file", "aws_account_id", "queue"],
-		"properties": {
-		  "name": {
-                    "type": "string",
-                    "pattern": "^[a-z0-9\\-_]+$"
-		  },
-		  "var_file": {
-                    "type": "string",
-                    "pattern": ".tfvars$"
-		  },
-		  "aws_account_id": {
-                    "type": "string",
-                    "pattern": "^[0-9]{12}$"
-		  },
-		  "queue": {
-		    "type": "string"
-		  },
-		  "is_production": {
-		    "type": "boolean"
-		  }
-		}
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["from", "to"],
+                "properties": {
+                  "from": {
+                    "type": "string"
+                  },
+                  "to": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "download": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["from", "to"],
+                "properties": {
+                  "from": {
+                    "type": "string"
+                  },
+                  "to": {
+                    "type": "string"
+                  }
+                }
               }
             }
-	  }
-	},
-	"shell": {
-	  "type": "object",
-	  "additionalProperties": false,
-	  "required": [],
-	  "properties": {
-	    "lint": {
-	      "type": "object",
-	      "properties": {
-		"queue": {
-		  "type": "string"
-		},
-		"shfmt": {
-		  "type": "object",
-		  "additionalproperties": false,
-		  "required": [],
-		  "properties": {
-		    "ignore": {
-		      "type": "array",
-		      "items": {
-			"type": "string"
-		      }
-		    }
-		  }
-		}
-	      },
-	      "shellcheck": {
-		"type": "object",
-		"additionalproperties": false,
-		"required": [],
-		"properties": {
-		  "ignore": {
-		    "type": "array",
-		    "items": {
-		      "type": "string"
-		    }
-		  }
-		}
-	      }
-	    }
-	  }
-	},
-	"buildkite": {
-	  "type": "object",
-	  "additionalProperties": false,
-	  "required": [],
-	  "properties": {
-	    "deploy_pause_type": {
-	      "type": "string",
-              "pattern": "^(block|wait)$"
-	    }
-	  }
-	},
-	"snyk": {
-	  "type": "object",
-	  "additionalProperties": false,
-	  "required": ["org", "secret_id"],
-	  "properties": {
-	    "org": {
-	      "type": "string"
-	    },
-	    "secret_id": {
-	      "type": "string"
-	    },
-	    "app_test": {
-	      "type": "object",
-	      "additionalProperties": false,
-	      "required": [],
-	      "properties": {
-		"queue": {
-		  "type": "string"
-		},
-                "always_pass": {
-                  "type": "boolean"
+          }
+        },
+        "workspaces": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "var_file", "aws_account_id", "queue"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z0-9\\-_]+$"
+              },
+              "var_file": {
+                "type": "string",
+                "pattern": ".tfvars$"
+              },
+              "aws_account_id": {
+                "type": "string",
+                "pattern": "^[0-9]{12}$"
+              },
+              "queue": {
+                "type": "string"
+              },
+              "is_production": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    },
+    "shell": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "lint": {
+          "type": "object",
+          "properties": {
+            "queue": {
+              "type": "string"
+            },
+            "shfmt": {
+              "type": "object",
+              "additionalproperties": false,
+              "required": [],
+              "properties": {
+                "ignore": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 }
-	      }
-	    },
-	    "iac_test": {
-	      "type": "object",
-	      "additionalProperties": false,
-	      "required": [],
-	      "properties": {
-		"queue": {
-		  "type": "string"
-		},
-                "always_pass": {
-                  "type": "boolean"
+              }
+            }
+          },
+          "shellcheck": {
+            "type": "object",
+            "additionalproperties": false,
+            "required": [],
+            "properties": {
+              "ignore": {
+                "type": "array",
+                "items": {
+                  "type": "string"
                 }
-	      }
-	    }
-	  }
-	}
+              }
+            }
+          }
+        }
+      }
+    },
+    "buildkite": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "deploy_pause_type": {
+          "type": "string",
+          "pattern": "^(block|wait)$"
+        }
+      }
+    },
+    "snyk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["org", "secret_id"],
+      "properties": {
+        "org": {
+          "type": "string"
+        },
+        "secret_id": {
+          "type": "string"
+        },
+        "app_test": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "queue": {
+              "type": "string"
+            },
+            "always_pass": {
+              "type": "boolean"
+            }
+          }
+        },
+        "iac_test": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "queue": {
+              "type": "string"
+            },
+            "always_pass": {
+              "type": "boolean"
+            }
+          }
+        }
       }
     }
   }

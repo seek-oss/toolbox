@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Tell shellcheck we'll be referencing definitions in the source file but don't
-# actually source anything as all sourcing takes place up in bin/toolbox.sh.
+# actually source anything as all sourcing takes place up in bin.sh.
 # shellcheck source=lib/args.sh
 # shellcheck disable=SC1091
 source /dev/null
@@ -12,7 +12,7 @@ config_json=
 # Toolbox 'internal' commands are exempt from requiring a config file.
 if [[ "${_arg_command1}" != internal ]]; then
   # Default config file locations.
-  _default_config_files=(toolbox.yaml .toolbox.yaml)
+  _default_config_files=.yaml.yml .yaml .yml)
 
   # Determine the location of the config file to use.
   _config_file=
@@ -70,16 +70,16 @@ info_msg() {
 
 ##
 ## Reads a config property from the config file or returns a default value (if provided).
-## The property argument should be specified relative to the top-level "toolbox" property
+## The property argument should be specified relative to the top-level " property
 ## and should not include a leading "." character.
 ##
 config_value() {
   local property="${1}"
   local default="${2:-}"
   if [[ -z "${default}" ]]; then
-    jq -er ".toolbox.${property}" <<< "${config_json}"
+    jq -er ".${property}" <<< "${config_json}"
   else
-    jq -r ".toolbox.${property} // \"${default}\"" <<< "${config_json}"
+    jq -r ".${property} // \"${default}\"" <<< "${config_json}"
   fi
 }
 
@@ -95,7 +95,7 @@ current_aws_account_id() {
 ##
 toolbox_version_info() {
   local version
-  version="$(toolbox_version)"
+  version="$_version)"
   echo "Toolbox version: ${version:-unknown}"
 }
 
@@ -111,14 +111,14 @@ toolbox_version() {
 ##
 toolbox_upgrade() {
   local latest_version
-  latest_version="$(curl -s "https://api.github.com/repos/seek-oss/toolbox/releases/latest" \
+  latest_version="$(curl -s "https://api.github.com/repos/seek-oss/releases/latest" \
     | jq -r .tag_name \
     | sed 's/^v//')"
 
   echo "Upgrading to Toolbox version ${latest_version}" >&2
 
-  curl -Lso toolbox.mk \
-    "https://github.com/seek-oss/toolbox/releases/download/v${latest_version}/toolbox.mk"
+  curl -Lso.mk \
+    "https://github.com/seek-oss/releases/download/v${latest_version}.mk"
 }
 
 # Common variables.

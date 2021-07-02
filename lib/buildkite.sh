@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Tell shellcheck we'll be referencing definitions in the source file but don't
-# actually source anything as all sourcing takes place up in bin/toolbox.sh.
+# actually source anything as all sourcing takes place up in bin.sh.
 # shellcheck source=lib/common.sh
 # shellcheck disable=SC1091
 source /dev/null
@@ -129,9 +129,9 @@ _bk_tf_plan_steps() {
     uploads="$(jq -c '[{
       "from": "'"${build_dir}/terraform.tfplan"'",
       "to": "'"${build_dir}/${workspace}.tfplan"'"
-    }] + .toolbox.terraform.artifacts.upload // []' <<< "${config_json}")"
+    }] + .terraform.artifacts.upload // []' <<< "${config_json}")"
     downloads="$(jq -c \
-      '.toolbox.terraform.artifacts.download // []' <<< "${config_json}")"
+      '.terraform.artifacts.download // []' <<< "${config_json}")"
 
     cat << EOF
 - label: ":terraform: Plan [${workspace}]"
@@ -162,7 +162,7 @@ _bk_tf_plan_steps() {
       permit_on_passed: true
 EOF
   done < <(jq -r \
-    '.toolbox.terraform.workspaces[]
+    '.terraform.workspaces[]
     | [.name, .queue]
     | @tsv' <<< "${config_json}")
 }
@@ -177,7 +177,7 @@ EOF
 ##
 _bk_tf_apply_steps() {
   local total_workspaces
-  total_workspaces="$(jq '.toolbox.terraform.workspaces | length' <<< "${config_json}")"
+  total_workspaces="$(jq '.terraform.workspaces | length' <<< "${config_json}")"
   if [[ "${total_workspaces}" == 0 ]]; then
     return 0
   fi
@@ -192,7 +192,7 @@ _bk_tf_apply_steps() {
   # all workspaces have been marked production we don't want to print a pause step at this
   # point otherwise there will have been two in a row.
   local total_non_prod_workspaces
-  total_non_prod_workspaces="$(jq '.toolbox.terraform.workspaces | map(select(.is_production != true)) | length' <<< "${config_json}")"
+  total_non_prod_workspaces="$(jq '.terraform.workspaces | map(select(.is_production != true)) | length' <<< "${config_json}")"
   if [[ "${total_non_prod_workspaces}" != 0 ]]; then
     _bk_pause_step
   fi
@@ -216,11 +216,11 @@ _bk_tf_apply_steps_filter() {
     fi
 
     uploads="$(jq -c \
-      '.toolbox.terraform.artifacts.upload // []' <<< "${config_json}")"
+      '.terraform.artifacts.upload // []' <<< "${config_json}")"
     downloads="$(jq -c '[{
       "from": "'"${build_dir}/${workspace}.tfplan"'",
       "to": "'"${build_dir}/terraform.tfplan"'"
-    }] + .toolbox.terraform.artifacts.download // []' <<< "${config_json}")"
+    }] + .terraform.artifacts.download // []' <<< "${config_json}")"
 
     cat << EOF
 - label: ":terraform: Apply [${workspace}]"
@@ -239,7 +239,7 @@ _bk_tf_apply_steps_filter() {
   concurrency_group: ${_bk_pipeline_slug}/${workspace}
 EOF
   done < <(jq -r \
-    '.toolbox.terraform.workspaces[]
+    '.terraform.workspaces[]
     | [.name, .queue, .is_production]
     | @tsv' <<< "${config_json}")
 }
