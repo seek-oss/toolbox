@@ -1,6 +1,5 @@
-toolbox:
-  shell:
-    lint:
-      shfmt:
-        ignore:
-        - ./lib/args.sh
+shell:
+  lint:
+    shfmt:
+      ignore:
+      - ./lib/args.sh
