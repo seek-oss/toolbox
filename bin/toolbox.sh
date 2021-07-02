@@ -31,7 +31,8 @@ source "${TOOLBOX_HOME}/lib/buildkite.sh"
 case "${_arg_command1}" in
   internal)
     case "${_arg_command2}" in
-      version) toolbox_version ;;
+      version) toolbox_version_info ;;
+      upgrade) toolbox_upgrade ;;
       *)
         die "Unrecognised internal Toolbox command: ${_arg_command2}"
         ;;

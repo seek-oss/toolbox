@@ -4,7 +4,7 @@ on:
     types: [published]
 env:
   TERM: xterm-color
-  RELEASE_ARCHIVE: target/toolbox.zip
+  RELEASE_ARCHIVE: target/toolbox.mk
 jobs:
   release:
     name: Release Workflow
@@ -20,9 +20,9 @@ jobs:
       run: docker login -u seek --password-stdin <<< "${{ secrets.DOCKER_PASSWORD }}"
     - name: Publish Docker image
       run: make build push push-latest RELEASE_VERSION=${GITHUB_REF#refs/tags/v}
-    - name: Package files
-      run: make package RELEASE_VERSION=${GITHUB_REF#refs/tags/v}
-    - name: Upload files
+    - name: Pin toolbox.mk
+      run: make pin RELEASE_VERSION=${GITHUB_REF#refs/tags/v}
+    - name: Upload toolbox.mk
       uses: alexellis/upload-assets@0.2.2
       with:
         asset_paths: '["${{ env.RELEASE_ARCHIVE }}"]'

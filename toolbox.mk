@@ -15,7 +15,7 @@ TOOLBOX_CONFIG_FILE ?=
 export BUILDKITE_PIPELINE_SLUG ?= $(shell basename $(shell pwd))
 
 # Toolbox Docker image.
-toolbox_image ?= seek/toolbox:$(TOOLBOX_VERSION)
+toolbox_image := seek/toolbox:$(TOOLBOX_VERSION)
 
 # Local build artifacts directory.
 build_dir := target
@@ -52,6 +52,7 @@ define HELP
 | clean                | Deletes the target/ and .terraform/ directories.                          |
 |----------------------+---------------------------------------------------------------------------|
 | toolbox-version      | Prints Toolbox version information.                                       |
+| toolbox-upgrade      | Upgrades the version of Toolbox to the latest versioned release.          |
 |----------------------+---------------------------------------------------------------------------|
 | terraform-lint       | Lints Terraform files in the current repository.                          |
 | terraform-init       | Initialises Terraform.                                                    |
@@ -102,10 +103,10 @@ clean:
 ##
 ## Toolbox internal targets.
 ##
-.PHONY: toolbox-version
-toolbox-version:
+.PHONY: toolbox-version toolbox-upgrade
+toolbox-version toolbox-upgrade:
 	@$(call banner,$@)
-	@$(call toolbox,toolbox internal version)
+	@$(call toolbox,toolbox internal "$(@:toolbox-%=%)")
 
 ##
 ## Terraform targets that DON'T require a workspace.

@@ -5,10 +5,7 @@ include toolbox.mk
 RELEASE_VERSION ?= latest
 
 # Release archive file that's uploaded to GitHub.
-RELEASE_ARCHIVE ?= $(build_dir)/toolbox.zip
-
-# Files that are included in the release archive.
-release_files := toolbox.mk .gitignore .editorconfig
+RELEASE_ARCHIVE ?= $(build_dir)/toolbox.mk
 
 ##
 ## Build a new Toolbox Docker image.
@@ -38,18 +35,13 @@ push-latest:
 	@docker push seek/toolbox:latest
 
 ##
-## Creates release archive to be uploaded to GitHub.
+## Creates a pinned version of toolbox.mk.
 ##
-.PHONY: package
-package: $(build_dir) $(release_files)
+.PHONY: pin
+pin: $(build_dir)
 	@$(call banner,$@)
-	@rm -rf $(RELEASE_ARCHIVE) $(build_dir)/release
-	@mkdir -p $(build_dir)/release
-	@cp $(release_files) $(build_dir)/release
-	@sed "s/TOOLBOX_VERSION := .*/TOOLBOX_VERSION := $(RELEASE_VERSION)/" toolbox.mk > $(build_dir)/release/toolbox.mk
-	@cd $(build_dir)/release && zip toolbox.zip $(release_files)
-	@mv $(build_dir)/release/toolbox.zip $(RELEASE_ARCHIVE)
-	@echo "Created $(RELEASE_ARCHIVE)" >&2
+	@sed "s/TOOLBOX_VERSION := .*/TOOLBOX_VERSION := $(RELEASE_VERSION)/" toolbox.mk > $(build_dir)/toolbox.mk
+	@echo "Created $(RELEASE_ARCHIVE) pinned to version $(RELEASE_VERSION)" >&2
 
 ##
 ## Update argbash arguments.
