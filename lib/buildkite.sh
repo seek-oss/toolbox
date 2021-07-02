@@ -124,6 +124,12 @@ EOF
 ## Print a Terraform plan step for each workspace.
 ##
 _bk_tf_plan_steps() {
+  local total_workspaces
+  total_workspaces="$(jq '.terraform.workspaces | length' <<< "${config_json}")"
+  if [[ "${total_workspaces}" == 0 ]]; then
+    return 0
+  fi
+
   local workspace queue uploads downloads
   while IFS=$'\t' read -r workspace queue; do
     uploads="$(jq -c '[{

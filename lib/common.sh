@@ -12,7 +12,7 @@ config_json=
 # Toolbox 'internal' commands are exempt from requiring a config file.
 if [[ "${_arg_command1}" != internal ]]; then
   # Default config file locations.
-  _default_config_files=.yaml.yml .yaml .yml)
+  _default_config_files=(toolbox.yaml toolbox.yml .toolbox.yaml .toolbox.yml)
 
   # Determine the location of the config file to use.
   _config_file=
@@ -95,7 +95,7 @@ current_aws_account_id() {
 ##
 toolbox_version_info() {
   local version
-  version="$_version)"
+  version="$(toolbox_version)"
   echo "Toolbox version: ${version:-unknown}"
 }
 
