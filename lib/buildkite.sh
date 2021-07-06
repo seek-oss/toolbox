@@ -124,9 +124,7 @@ EOF
 ## Print a Terraform plan step for each workspace.
 ##
 _bk_tf_plan_steps() {
-  local total_workspaces
-  total_workspaces="$(jq '.terraform.workspaces | length' <<< "${config_json}")"
-  if [[ "${total_workspaces}" == 0 ]]; then
+  if [[ "$(_bk_tf_total_workspace_steps)" == 0 ]]; then
     return 0
   fi
 
@@ -182,9 +180,7 @@ EOF
 ## Wait/Block -> Apply Non-Prod -> Wait/Block -> Apply Prod
 ##
 _bk_tf_apply_steps() {
-  local total_workspaces
-  total_workspaces="$(jq '.terraform.workspaces | length' <<< "${config_json}")"
-  if [[ "${total_workspaces}" == 0 ]]; then
+  if [[ "$(_bk_tf_total_workspace_steps)" == 0 ]]; then
     return 0
   fi
 
@@ -282,4 +278,11 @@ EOF
     queue: ${queue}
 EOF
   fi
+}
+
+##
+## Returns the total number of Terraform workspaces that specify a Buildkite queue.
+##
+_bk_tf_total_workspace_steps() {
+  jq '.terraform.workspaces | map(select(.queue != null)) | length' <<< "${config_json}"
 }

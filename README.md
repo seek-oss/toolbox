@@ -152,7 +152,7 @@ snyk:
 TODO:
 - Cater for interactive commands like: console, import, etc.
 - Test destroy
-- Make var_file, aws_account_id, queue, etc for workspaces optional
 - Put things under the buildkite: field that should be
+- Document buildkite section
 - Document Buildkite artifacts
 -->

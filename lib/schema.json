@@ -77,7 +77,7 @@
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["name", "var_file", "aws_account_id", "queue"],
+            "required": ["name"],
             "properties": {
               "name": {
                 "type": "string",

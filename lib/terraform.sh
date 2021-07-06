@@ -54,21 +54,19 @@ tf_workspace() {
     die "No Terraform workspace specified. This command requires a --workspace argument."
   fi
 
-  local name var_file aws_account_id
+  local workspace var_file aws_account_id
 
   # Locate the workspace in the config file.
-  while IFS=$'\t' read -r name var_file aws_account_id; do
-    if [[ "${_arg_workspace}" == "${name}" ]]; then
-      # Ensure that the var file exists.
-      if [[ ! -f "${var_file}" ]]; then
-        die "Terraform var file ${var_file} for workspace ${_arg_workspace} does not exist or is not a normal file."
-      fi
-
-      # Check the currently authenticated AWS account.
-      local current_aws_account_id
-      current_aws_account_id="$(current_aws_account_id)"
-      if [[ "${aws_account_id}" != "${current_aws_account_id}" ]]; then
-        die "The AWS account ID ${aws_account_id} specified for workspace ${_arg_workspace} does not match currently authenticated account ${current_aws_account_id}."
+  while IFS=$'\t' read -r workspace var_file aws_account_id; do
+    if [[ "${_arg_workspace}" == "${workspace}" ]]; then
+      # If an AWS account was specified for the workspace, check it against the
+      # currently authenticated AWS account.
+      if [[ "${aws_account_id}" != null ]]; then
+        local current_aws_account_id
+        current_aws_account_id="$(current_aws_account_id)"
+        if [[ "${aws_account_id}" != "${current_aws_account_id}" ]]; then
+          die "The AWS account ID ${aws_account_id} specified for workspace ${_arg_workspace} does not match currently authenticated account ${current_aws_account_id}."
+        fi
       fi
 
       # Initialise Terraform.
@@ -79,11 +77,17 @@ tf_workspace() {
       terraform workspace new "${_arg_workspace}" 2> /dev/null || true
       terraform workspace select "${_arg_workspace}" > /dev/null
 
+      # If a var file has been specified for the workspace then export it using TF_CLI_ARGS so that
+      # every terraform invocation doesn't need to know whether to specify it or not.
+      if [[ "${var_file}" != null ]]; then
+        export TF_CLI_ARGS="-var-file=${var_file}"
+      fi
+
       return 0
     fi
   done < <(jq -r \
     '.terraform.workspaces[]
-    | [.name, .var_file, .aws_account_id]
+    | [.name, .var_file // "null", .aws_account_id // "null"]
     | @tsv' <<< "${config_json}")
 
   # If we've reached here then the specified workspace was not found.
@@ -99,7 +103,7 @@ tf_plan() {
 
   # Create a Terraform plan.
   info_msg "Creating Terraform plan for workspace ${_arg_workspace}"
-  terraform plan -var-file="$(_tf_var_file)" -out="${_tf_plan_file}"
+  terraform plan -out="${_tf_plan_file}"
 }
 
 ##
@@ -112,7 +116,7 @@ tf_plan_local() {
   # Create a local Terraform plan by operating on local state.
   info_msg "Creating local Terraform plan for workspace ${_arg_workspace}"
   terraform state pull > "${_tf_state_file}"
-  terraform plan -var-file="$(_tf_var_file)" -state="${_tf_state_file}" -lock=false -out="${_tf_plan_file}"
+  terraform plan -state="${_tf_state_file}" -lock=false -out="${_tf_plan_file}"
 }
 
 ##
@@ -140,7 +144,7 @@ tf_refresh() {
   tf_workspace
 
   info_msg "Refreshing Terraform workspace ${_arg_workspace}"
-  terraform refresh -var-file="$(_tf_var_file)"
+  terraform refresh
 }
 
 ##
@@ -151,7 +155,7 @@ tf_destroy() {
   tf_workspace
 
   info_msg "Destroying Terraform resources in workspace ${_arg_workspace}"
-  TF_IN_AUTOMATION=0 terraform destroy -var-file="$(_tf_var_file)"
+  TF_IN_AUTOMATION=0 terraform destroy
 }
 
 ##
@@ -161,7 +165,7 @@ tf_console() {
   tf_workspace
 
   info_msg "Starting Terraform console for workspace ${_arg_workspace}"
-  terraform console -var-file="$(_tf_var_file)"
+  terraform console
 }
 
 ##
@@ -170,25 +174,4 @@ tf_console() {
 tf_lint() {
   info_msg "Linting Terraform files"
   terraform fmt -diff -check
-}
-
-##
-## Returns the Terraform var file for the selected workspace.
-##
-_tf_var_file() {
-  local var_file
-
-  # Locate the workspace in the config file.
-  while IFS=$'\t' read -r name var_file; do
-    if [[ "${_arg_workspace}" == "${name}" ]]; then
-      echo "${var_file}"
-      return 0
-    fi
-  done < <(jq -r \
-    '.terraform.workspaces[]
-    | [.name, .var_file]
-    | @tsv' <<< "${config_json}")
-
-  # Workspace doesn't exist in config file.
-  return 1
 }
