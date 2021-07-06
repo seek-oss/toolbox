@@ -49,38 +49,95 @@ An example annotated configuration file is shown below. The schema can be found
 [here][04].
 
 ```yaml
+# (Optional)
+# Terraform configuration section.
 terraform:
+  # (Optional)
+  # Terraform linting section. This section configures the behaviour of the
+  # `terraform fmt` command.
   lint:
+    # (Optional)
+    # Buildkite queue that is targetted by the lint operation. If this queue is omitted,
+    # the lint operation is excluded from the Buildkite pipeline.
     queue: development
+
+  # (Optional)
+  # Terraform validation section. This section configures the behaviour of the
+  # `terraform validate` command.
   validate:
+    # (Optional) Buildkite queue that is targetted by the validate operation. If this
+    # queue is omitted, the validate operation is excluded from the Buildkite pipeline.
     queue: development
+
+  # (Optional)
+  # Terraform workspace configuration section.
+  # Each Terraform workspace represents a deployent target that can be planned and applied.
   workspaces:
-  - name: us-west-1-development
+  - # (Required)
+    # Name of the workspace. This must be unique within the array of workspaces.
+    name: us-west-1-development
+    # (Optional)
+    # Path to the variables file that corresponds to this workspace.
     var_file: config/us-west-1/development.tfvars
+    # (Optional)
+    # ID of the AWS account that this workspace is deployed to. This field is used to protect
+    # against being authenticated against the wrong account. If this field is omitted, this
+    # safety check will not be performed.
     aws_account_id: "111111111111"
+    # (Optional)
+    # Buildkite queue that is targetted by the Terraform operations on this workspace.
+    # If this queue is omitted, this workspace will be excluded from the Buildkite pipeline.
     queue: development
+    # (Optional)
+    # Whether this workspace corresponds to a production environment. This field is used to
+    # order deployments within the Buildkite pipeline so that non-production workspaces are
+    # deployed before production workspaces.
     is_production: false
-  - name: us-west-1-production
-    var_file: config/us-west-1/production.tfvars
-    aws_account_id: "222222222222"
-    queue: production
-    is_production: true
-  - name: us-west-2-production
-    var_file: config/us-west-2/production.tfvars
-    aws_account_id: "222222222222"
-    queue: production
-    is_production: true
+
+# (Optional)
+# Shell script configuration section.
 shell:
+  (Optional)
+  # Shell linting section. This section configures the behaviour of the shellcheck and shfmt
+  # commands which can either be run indendently via `make shell-shellcheck` and `make-shfmt`,
+  # respectively, or together via `make shell-lint`.
   lint:
+    # (Optional)
+    # Buildkite queue that is targetted by the lint operation (that runs both shellcheck and shfmt).
+    # If this queue is omitted, the lint operation is excluded from the Buildkite pipeline.
     queue: development
+
+# (Optional)
+# Snyk configuration section.
 snyk:
+  # (Required)
+  # Name of the Snyk organisation to which projects should be assigned.
   org: my-org
+  # (Required)
+  # ID of the AWS secret that holds the Snyk API token.
   secret_id: snyk/api-token
+  # (Optional)
+  # Snyk application test section.
   app_test:
+    # (Optional)
+    # Buildkite queue that is targetted by the application test operation. If this queue is omitted,
+    # Snyk application tests will be excluded from the Buildkite pipeline.
     queue: development
+    # (Optional)
+    # Whether the application test should run in "warning mode" and always pass so as not to block
+    # the Buildkite pipeline. Defaults to false.
     always_pass: false
+
+  # (Optional)
+  # Snyk infrastructure test section.
   iac_test:
+    # (Optional)
+    # Buildkite queue that is targetted by the application test operation. If this queue is omitted,
+    # Snyk application tests will be excluded from the Buildkite pipeline.
     queue: development
+    # (Optional)
+    # Whether the application test should run in "warning mode" and always pass so as not to block
+    # the Buildkite pipeline. Defaults to false.
     always_pass: false
 ```
 
@@ -89,3 +146,13 @@ snyk:
 [02]: toolbox.mk
 [03]: https://github.com/seek-oss/toolbox/releases
 [04]: lib/schema.json
+
+
+<!--
+TODO:
+- Cater for interactive commands like: console, import, etc.
+- Test destroy
+- Make var_file, aws_account_id, queue, etc for workspaces optional
+- Put things under the buildkite: field that should be
+- Document Buildkite artifacts
+-->

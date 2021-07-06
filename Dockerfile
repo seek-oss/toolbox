@@ -15,7 +15,7 @@ ARG SNYK_VERSION=1.621.0
 
 # Install OS packages.
 RUN apk add --no-cache \
-    bash ca-certificates curl git jq make ncurses perl xz zip
+    bash ca-certificates curl git jq make ncurses openssh perl xz zip
 
 # Install glibc compatibility for Alpine which is required to run AWS CLI V2. See comment here:
 # https://github.com/aws/aws-cli/issues/4685#issuecomment-615872019
