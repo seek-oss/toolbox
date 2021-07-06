@@ -110,15 +110,14 @@ toolbox_version() {
 ## Upgrades Toolbox to the latest released version.
 ##
 toolbox_upgrade() {
-  local latest_version
-  latest_version="$(curl -s "https://api.github.com/repos/seek-oss/releases/latest" \
-    | jq -r .tag_name \
-    | sed 's/^v//')"
+  local latest_tag
+  latest_tag="$(curl -s "https://api.github.com/repos/seek-oss/toolbox/releases/latest" \
+    | jq -r .tag_name)"
 
-  echo "Upgrading to Toolbox version ${latest_version}" >&2
+  echo "Upgrading to Toolbox version ${latest_tag}" >&2
 
-  curl -Lso.mk \
-    "https://github.com/seek-oss/releases/download/v${latest_version}.mk"
+  curl -Lso toolbox.mk \
+    "https://github.com/seek-oss/toolbox/releases/download/${latest_tag}/toolbox.mk"
 }
 
 # Common variables.

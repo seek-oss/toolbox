@@ -107,7 +107,8 @@ clean:
 ##
 ## Toolbox internal targets.
 ##
-.PHONY: toolbox-version toolbox-upgrade
+.PHONY: toolbox-version toolbox-update toolbox-upgrade
+toolbox-update: toolbox-upgrade
 toolbox-version toolbox-upgrade:
 	@$(call banner,$@)
 	@$(call toolbox,toolbox internal "$(@:toolbox-%=%)")

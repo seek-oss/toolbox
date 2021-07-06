@@ -150,10 +150,7 @@ snyk:
 
 <!--
 TODO:
-- Cater for interactive commands like: console, import, etc.
-- Test destroy
 - Put things under the buildkite: field that should be
 - Document buildkite section
 - Document Buildkite artifacts
-- Fix toolbox-upgrade
 -->
