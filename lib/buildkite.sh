@@ -133,9 +133,9 @@ _bk_tf_plan_steps() {
     uploads="$(jq -c '[{
       "from": "'"${build_dir}/terraform.tfplan"'",
       "to": "'"${build_dir}/${workspace}.tfplan"'"
-    }] + .terraform.artifacts.upload // []' <<< "${config_json}")"
+    }] + .buildkite.artifacts.upload // []' <<< "${config_json}")"
     downloads="$(jq -c \
-      '.terraform.artifacts.download // []' <<< "${config_json}")"
+      '.buildkite.artifacts.download // []' <<< "${config_json}")"
 
     cat << EOF
 - label: ":terraform: Plan [${workspace}]"
@@ -218,11 +218,11 @@ _bk_tf_apply_steps_filter() {
     fi
 
     uploads="$(jq -c \
-      '.terraform.artifacts.upload // []' <<< "${config_json}")"
+      '.buildkite.artifacts.upload // []' <<< "${config_json}")"
     downloads="$(jq -c '[{
       "from": "'"${build_dir}/${workspace}.tfplan"'",
       "to": "'"${build_dir}/terraform.tfplan"'"
-    }] + .terraform.artifacts.download // []' <<< "${config_json}")"
+    }] + .buildkite.artifacts.download // []' <<< "${config_json}")"
 
     cat << EOF
 - label: ":terraform: Apply [${workspace}]"

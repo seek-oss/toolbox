@@ -33,45 +33,6 @@
             }
           }
         },
-        "artifacts": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [],
-          "properties": {
-            "upload": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["from", "to"],
-                "properties": {
-                  "from": {
-                    "type": "string"
-                  },
-                  "to": {
-                    "type": "string"
-                  }
-                }
-              }
-            },
-            "download": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["from", "to"],
-                "properties": {
-                  "from": {
-                    "type": "string"
-                  },
-                  "to": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
         "workspaces": {
           "type": "array",
           "items": {
@@ -151,6 +112,45 @@
         "deploy_pause_type": {
           "type": "string",
           "pattern": "^(block|wait)$"
+        },
+        "artifacts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "upload": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["from", "to"],
+                "properties": {
+                  "from": {
+                    "type": "string"
+                  },
+                  "to": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "download": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["from", "to"],
+                "properties": {
+                  "from": {
+                    "type": "string"
+                  },
+                  "to": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
         }
       }
     },

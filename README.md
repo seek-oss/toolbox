@@ -37,6 +37,15 @@ commands require a Toolbox configuration file which is described below.
 To keep Toolbox up to date, you can run `make toolbox-upgrade` to install the
 latest released version.
 
+To use Toolbox to generate your Buildkite pipeline update your `.buildkite/pipeline.yaml`
+file to call `make buildkite-pipeline`.
+
+```yaml
+steps:
+- label: ":buildkite: Create pipeline"
+  command: "make buildkite-pipeline | buildkite-agent pipeline upload"
+```
+
 ## Configuration
 
 Each project that uses Toolbox needs to define a configuration file that tells
@@ -139,6 +148,31 @@ snyk:
     # Whether the application test should run in "warning mode" and always pass so as not to block
     # the Buildkite pipeline. Defaults to false.
     always_pass: false
+
+# (Optional)
+# Buildkite configuration section.
+buildkite:
+  # (Optional)
+  # Whether Buildkite should block or wait between certain Terraform steps. This will apply between
+  # the plan steps and the apply steps, as well as between apply steps for non-production workspaces
+  # and production workspaces. If specified, the value of this property must be either "block" or
+  # "wait". The default is to block.
+  deploy_pause_type: block
+  # (Optional)
+  # Buildkite artifact management section. This section determines how the Buildkite artifacts plugin
+  # (https://github.com/buildkite-plugins/artifacts-buildkite-plugin) should be configured for Terraform
+  # plan and apply steps.
+  artifacts:
+    # (Optional)
+    # Artifact download configuration section.
+    download:
+    - from: target/package.zip
+      to: target/package.zip
+    # (Optional)
+    # Artifact upload configuration section.
+    upload:
+    - from: target/package.zip
+      to: target/package.zip
 ```
 
 <!-- Links -->
@@ -150,7 +184,6 @@ snyk:
 
 <!--
 TODO:
-- Put things under the buildkite: field that should be
-- Document buildkite section
-- Document Buildkite artifacts
+- Convert confiuration to simpler YAML and document full options Terraform style.
+- Create examples directory with working project (e.g., deploys an S3 bucket to multiple workspaces)
 -->
