@@ -77,10 +77,14 @@ tf_workspace() {
       terraform workspace new "${_arg_workspace}" 2> /dev/null || true
       terraform workspace select "${_arg_workspace}" > /dev/null
 
-      # If a var file has been specified for the workspace then export it using TF_CLI_ARGS so that
-      # every terraform invocation doesn't need to know whether to specify it or not.
+      # If a var file has been specified for the workspace then export it using TF_CLI_ARGS_xyz
+      # variables so that the Terraform invocations don't need to know whether to specify it or not.
       if [[ "${var_file}" != null ]]; then
-        export TF_CLI_ARGS="-var-file=${var_file}"
+        local arg="-var-file=${var_file}"
+        export TF_CLI_ARGS_plan="${arg}"
+        export TF_CLI_ARGS_refresh="${arg}"
+        export TF_CLI_ARGS_destroy="${arg}"
+        export TF_CLI_ARGS_console="${arg}"
       fi
 
       return 0
@@ -174,4 +178,37 @@ tf_console() {
 tf_lint() {
   info_msg "Linting Terraform files"
   terraform fmt -diff -check
+}
+
+##
+## Force unlock the Terraform state lock.
+##
+tf_unlock() {
+  tf_workspace
+
+  info_msg "Unlocking Terraform workspace ${_arg_workspace}"
+
+  # At this point, we don't know the lock ID. The simplest way to get the lock
+  # ID is to attempt to unlock with an incorrect ID ("abc") and then capture
+  # the lock ID that Terraform prints out.
+  local msg
+  msg="$(terraform force-unlock -force abc 2>&1 || true)"
+
+  # Check for a message telling us the real lock ID.
+  if [[ "${msg}" =~ 'lock id "abc" does not match existing lock' ]]; then
+    local lock_id
+    lock_id="$(grep 'ID:' <<< "${msg}" | sed 's/.*ID: *//')"
+    terraform force-unlock -force "${lock_id}"
+    return 0
+  fi
+
+  # Check for a message telling us the state isn't locked.
+  if [[ "${msg}" =~ 'failed to retrieve lock info' ]]; then
+    echo "Terraform state appears to be unlocked already." >&2
+    return 0
+  fi
+
+  # Unrecognised message.
+  echo "${msg}" >&2
+  return 1
 }

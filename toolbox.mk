@@ -32,9 +32,9 @@ endif
 banner = \
 	printf "\n$(color_on)=> Executing target: $1$(color_off)\n" >&2
 
-# Macro for executing running a command in the toolbox container.
-toolbox = \
-	docker run --rm \
+# Macros for executing running a command in the toolbox container.
+_toolbox = \
+	docker run --rm $2 \
 		-e TOOLBOX_CONFIG_FILE \
 		-e BUILDKITE_PIPELINE_SLUG \
 		-e TERM \
@@ -42,6 +42,8 @@ toolbox = \
 		-v "$(HOME)/.aws:/root/.aws" \
 		-w /work \
 		"$(toolbox_image)" $1
+toolbox     = $(call _toolbox,$1)
+toolbox_tty = $(call _toolbox,$1,-ti)
 
 # Help message printed by the help target.
 define HELP
@@ -53,6 +55,7 @@ define HELP
 |----------------------+---------------------------------------------------------------------------|
 | toolbox-version      | Prints Toolbox version information.                                       |
 | toolbox-upgrade      | Upgrades the version of Toolbox to the latest versioned release.          |
+| toolbox-bash         | Launch an interactive Bash shell in the Toolbox container.                |
 |----------------------+---------------------------------------------------------------------------|
 | terraform-lint       | Lints Terraform files in the current repository.                          |
 | terraform-init       | Initialises Terraform.                                                    |
@@ -64,6 +67,7 @@ define HELP
 | terraform-refresh    | Refreshes remote Terraform state. WORKSPACE must be specified.            |
 | terraform-destroy    | Destroys Terraform-managed infrastructure. WORKSPACE must be specified.   |
 | terraform-console    | Launches a Terraform console. WORKSPACE must be specified.                |
+| terraform-unlock     | Force unlocks the Terraform state. WORKSPACE must be specified.           |
 |----------------------+---------------------------------------------------------------------------|
 | buildkite-pipeline   | Prints the generated Buildkite pipeline to stdout.                        |
 |----------------------+---------------------------------------------------------------------------|
@@ -109,6 +113,14 @@ toolbox-version toolbox-upgrade:
 	@$(call toolbox,toolbox internal "$(@:toolbox-%=%)")
 
 ##
+## Run a Toolbox Bash shell.
+##
+.PHONY: toolbox-bash
+toolbox-bash:
+	@$(call banner,$@)
+	@$(call toolbox_tty,bash)
+
+##
 ## Terraform targets that DON'T require a workspace.
 ##
 .PHONY: terraform-init terraform-validate terraform-lint
@@ -117,15 +129,29 @@ terraform-init terraform-validate terraform-lint:
 	@$(call toolbox,toolbox terraform "$(@:terraform-%=%)")
 
 ##
-## Terraform targets that DO require a workspace.
+## Ensures that a WORKSPACE variable has been specified.
 ##
-.PHONY: terraform-workspace terraform-plan terraform-plan-local terraform-apply terraform-refresh terraform-destroy terraform-console
-terraform-workspace terraform-plan terraform-plan-local terraform-apply terraform-refresh terraform-destroy terraform-console:
+.PHONY: terraform-ensure-workspace
+terraform-ensure-workspace:
 ifeq ($(WORKSPACE),)
 	@$(error WORKSPACE variable must be specified)
 endif
+
+##
+## Terraform targets that DO require a workspace (non-interactive).
+##
+.PHONY: terraform-workspace terraform-plan terraform-plan-local terraform-apply terraform-refresh terraform-unlock
+terraform-workspace terraform-plan terraform-plan-local terraform-apply terraform-refresh terraform-unlock: terraform-ensure-workspace
 	@$(call banner,$@)
 	@$(call toolbox,toolbox -w "$(WORKSPACE)" terraform "$(@:terraform-%=%)")
+
+##
+## Terraform targets that DO require a workspace (interactive).
+##
+.PHONY: terraform-destroy terraform-console
+terraform-destroy terraform-console: terraform-ensure-workspace
+	@$(call banner,$@)
+	@$(call toolbox_tty,toolbox -w "$(WORKSPACE)" terraform "$(@:terraform-%=%)")
 
 ##
 ## Buildkite targets.

@@ -42,6 +42,7 @@ case "${_arg_command1}" in
     case "${_arg_command2}" in
       init) tf_init ;;
       workspace) tf_workspace ;;
+      lint) tf_lint ;;
       validate) tf_validate ;;
       plan) tf_plan ;;
       plan-local) tf_plan_local ;;
@@ -49,8 +50,7 @@ case "${_arg_command1}" in
       refresh) tf_refresh ;;
       destroy) tf_destroy ;;
       console) tf_console ;;
-      lint) tf_lint ;;
-      pipeline) bk_pipeline ;;
+      unlock) tf_unlock ;;
       *)
         die "Unrecognised Terraform command: ${_arg_command2}"
         ;;
