@@ -114,7 +114,7 @@ toolbox_upgrade() {
   latest_tag="$(curl -s "https://api.github.com/repos/seek-oss/toolbox/releases/latest" \
     | jq -r .tag_name)"
 
-  echo "Upgrading to Toolbox version ${latest_tag}" >&2
+  echo "Upgrading to Toolbox ${latest_tag}" >&2
 
   curl -Lso toolbox.mk \
     "https://github.com/seek-oss/toolbox/releases/download/${latest_tag}/toolbox.mk"

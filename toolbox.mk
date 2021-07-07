@@ -5,6 +5,11 @@ TOOLBOX_VERSION := latest
 # provided by the caller in the form `make target WORKSPACE=workspace`.
 WORKSPACE ?=
 
+# Whether Toolbox should skip Terraform initialisation. To save time,
+# this variable may be set to true when working locally and you know that
+# Terraform has already been initialised for the project.
+SKIP_INIT ?= false
+
 # The TOOLBOX_CONFIG_FILE variable can be specified by the caller to override
 # the default config file locations.
 TOOLBOX_CONFIG_FILE ?=
@@ -144,7 +149,7 @@ endif
 .PHONY: terraform-workspace terraform-plan terraform-plan-local terraform-apply terraform-refresh terraform-unlock
 terraform-workspace terraform-plan terraform-plan-local terraform-apply terraform-refresh terraform-unlock: terraform-ensure-workspace
 	@$(call banner,$@)
-	@$(call toolbox,toolbox -w "$(WORKSPACE)" terraform "$(@:terraform-%=%)")
+	@$(call toolbox,toolbox -w "$(WORKSPACE)" -s "$(SKIP_INIT)" terraform "$(@:terraform-%=%)")
 
 ##
 ## Terraform targets that DO require a workspace (interactive).

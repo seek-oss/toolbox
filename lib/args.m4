@@ -47,6 +47,7 @@ echo "This is just a parsing library template, not the library - pass this file 
 exit 11  #)Created by argbash-init v2.10.0
 # ARG_OPTIONAL_SINGLE([config], [c], [Config file for toolbox])
 # ARG_OPTIONAL_SINGLE([workspace], [w], [Terraform workspace name])
+# ARG_OPTIONAL_SINGLE([skip-init], [s], [Whether to skip Terraform initialisation], [false])
 # ARG_POSITIONAL_SINGLE([command1], [$(_command1_help)])
 # ARG_POSITIONAL_SINGLE([command2], [$(_command2_help)])
 # ARG_DEFAULTS_POS

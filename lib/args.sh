@@ -45,6 +45,7 @@ EOF
 # Created by argbash-init v2.10.0
 # ARG_OPTIONAL_SINGLE([config],[c],[Config file for toolbox])
 # ARG_OPTIONAL_SINGLE([workspace],[w],[Terraform workspace name])
+# ARG_OPTIONAL_SINGLE([skip-init],[s],[Whether to skip Terraform initialisation],[false])
 # ARG_POSITIONAL_SINGLE([command1],[$(_command1_help)])
 # ARG_POSITIONAL_SINGLE([command2],[$(_command2_help)])
 # ARG_DEFAULTS_POS()
@@ -67,7 +68,7 @@ die()
 
 begins_with_short_option()
 {
-	local first_option all_short_options='cwh'
+	local first_option all_short_options='cwsh'
 	first_option="${1:0:1}"
 	test "$all_short_options" = "${all_short_options/$first_option/}" && return 1 || return 0
 }
@@ -79,16 +80,18 @@ _arg_command2=
 # THE DEFAULTS INITIALIZATION - OPTIONALS
 _arg_config=
 _arg_workspace=
+_arg_skip_init="false"
 
 
 print_help()
 {
 	printf '%s\n' "The toolbox provides common infrastructure functionality"
-	printf 'Usage: %s [-c|--config <arg>] [-w|--workspace <arg>] [-h|--help] <command1> <command2>\n' "$0"
+	printf 'Usage: %s [-c|--config <arg>] [-w|--workspace <arg>] [-s|--skip-init <arg>] [-h|--help] <command1> <command2>\n' "$0"
 	printf '\t%s\n' "<command1>: $(_command1_help)"
 	printf '\t%s\n' "<command2>: $(_command2_help)"
 	printf '\t%s\n' "-c, --config: Config file for toolbox (no default)"
 	printf '\t%s\n' "-w, --workspace: Terraform workspace name (no default)"
+	printf '\t%s\n' "-s, --skip-init: Whether to skip Terraform initialisation (default: 'false')"
 	printf '\t%s\n' "-h, --help: Prints help"
 }
 
@@ -121,6 +124,17 @@ parse_commandline()
 				;;
 			-w*)
 				_arg_workspace="${_key##-w}"
+				;;
+			-s|--skip-init)
+				test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+				_arg_skip_init="$2"
+				shift
+				;;
+			--skip-init=*)
+				_arg_skip_init="${_key##--skip-init=}"
+				;;
+			-s*)
+				_arg_skip_init="${_key##-s}"
 				;;
 			-h|--help)
 				print_help

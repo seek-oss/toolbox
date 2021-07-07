@@ -20,6 +20,11 @@ export TF_VAR_global_region="${_tf_global_region}"
 ## Initialise Terraform.
 ##
 tf_init() {
+  if [[ "${_arg_skip_init}" == true ]]; then
+    info_msg "Skipping Terraform initialisation"
+    return 0
+  fi
+
   info_msg "Initialising Terraform"
 
   local backend_bucket
@@ -72,10 +77,16 @@ tf_workspace() {
       # Initialise Terraform.
       tf_init
 
-      # Select the Terraform workspace.
-      info_msg "Selecting Terraform workspace ${_arg_workspace}"
-      terraform workspace new "${_arg_workspace}" 2> /dev/null || true
-      terraform workspace select "${_arg_workspace}" > /dev/null
+      # Select the Terraform workspace if necessary.
+      local current_workspace
+      current_workspace="$(terraform workspace show)"
+      if [[ "${current_workspace}" != "${_arg_workspace}" ]]; then
+        info_msg "Selecting Terraform workspace ${_arg_workspace}"
+        terraform workspace new "${_arg_workspace}" 2> /dev/null || true
+        terraform workspace select "${_arg_workspace}" > /dev/null
+      else
+        info_msg "Terraform workspace ${_arg_workspace} is already selected"
+      fi
 
       # If a var file has been specified for the workspace then export it using TF_CLI_ARGS_xyz
       # variables so that the Terraform invocations don't need to know whether to specify it or not.
