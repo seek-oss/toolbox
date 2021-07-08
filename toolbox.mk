@@ -132,7 +132,7 @@ toolbox-bash:
 .PHONY: terraform-init terraform-validate terraform-lint
 terraform-init terraform-validate terraform-lint:
 	@$(call banner,$@)
-	@$(call toolbox,toolbox terraform "$(@:terraform-%=%)")
+	@$(call toolbox,toolbox -s "$(SKIP_INIT)" terraform "$(@:terraform-%=%)")
 
 ##
 ## Ensures that a WORKSPACE variable has been specified.
@@ -157,7 +157,7 @@ terraform-workspace terraform-plan terraform-plan-local terraform-apply terrafor
 .PHONY: terraform-destroy terraform-console
 terraform-destroy terraform-console: terraform-ensure-workspace
 	@$(call banner,$@)
-	@$(call toolbox_tty,toolbox -w "$(WORKSPACE)" terraform "$(@:terraform-%=%)")
+	@$(call toolbox_tty,toolbox -w "$(WORKSPACE)" -s "$(SKIP_INIT)" terraform "$(@:terraform-%=%)")
 
 ##
 ## Buildkite targets.
