@@ -51,6 +51,8 @@ case "${_arg_command1}" in
       destroy) tf_destroy ;;
       console) tf_console ;;
       unlock) tf_unlock ;;
+      output) tf_output ;;
+      output-json) tf_output_json ;;
       *)
         die "Unrecognised Terraform command: ${_arg_command2}"
         ;;

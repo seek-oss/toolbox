@@ -192,6 +192,26 @@ tf_lint() {
 }
 
 ##
+## To extract all the output values from a Terraform workspace
+##
+tf_output() {
+  tf_workspace
+
+  info_msg "Extract Output from the Terraform workspace ${_arg_workspace}"
+  terraform output
+}
+
+##
+## To extract all the output values from a Terraform workspace as json
+##
+tf_output_json() {
+  tf_workspace
+
+  info_msg "Extract Output from the Terraform workspace ${_arg_workspace} as json"
+  terraform output -json
+}
+
+##
 ## Force unlock the Terraform state lock.
 ##
 tf_unlock() {

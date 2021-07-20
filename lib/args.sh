@@ -22,6 +22,8 @@ Second-level command.
             - init
             - workspace
             - validate
+            - output
+            - output-json
             - plan
             - plan-local
             - apply

@@ -68,4 +68,5 @@ RUN curl -Lso /usr/local/bin/snyk \
 # Install toolbox
 ADD bin "${TOOLBOX_HOME}/bin"
 ADD lib "${TOOLBOX_HOME}/lib"
+RUN find "${TOOLBOX_HOME}" -type f -iname "*.sh" -exec chmod +x {} \;
 RUN ln -s "${TOOLBOX_HOME}/bin/toolbox.sh" /usr/local/bin/toolbox

@@ -66,6 +66,8 @@ define HELP
 | terraform-init       | Initialises Terraform.                                                    |
 | terraform-validate   | Validates Terraform files in the current repository.                      |
 | terraform-workspace  | Selects the Terraform workspace. WORKSPACE must be specified.             |
+| terraform-output     | Exports the Terraform outputs. WORKSPACE must be specified.               |
+| terraform-output-json| Exports the Terraform outputs json format. WORKSPACE must be specified.   |
 | terraform-plan       | Creates a Terraform plan using remote state. WORKSPACE must be specified. |
 | terraform-plan-local | Creates a Terraform plan using local state. WORKSPACE must be specified.  |
 | terraform-apply      | Applies previously created Terraform plan. WORKSPACE must be specified.   |
@@ -146,8 +148,8 @@ endif
 ##
 ## Terraform targets that DO require a workspace (non-interactive).
 ##
-.PHONY: terraform-workspace terraform-plan terraform-plan-local terraform-apply terraform-refresh terraform-unlock
-terraform-workspace terraform-plan terraform-plan-local terraform-apply terraform-refresh terraform-unlock: terraform-ensure-workspace
+.PHONY: terraform-workspace terraform-output terraform-output-json terraform-plan terraform-plan-local terraform-apply terraform-refresh terraform-unlock
+terraform-workspace terraform-output terraform-output-json terraform-plan terraform-plan-local terraform-apply terraform-refresh terraform-unlock: terraform-ensure-workspace
 	@$(call banner,$@)
 	@$(call toolbox,toolbox -w "$(WORKSPACE)" -s "$(SKIP_INIT)" terraform "$(@:terraform-%=%)")
 
