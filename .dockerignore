@@ -1,0 +1,3 @@
+/.buildkite
+.dockerignore
+/.git*
