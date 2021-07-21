@@ -29,6 +29,7 @@ Second-level command.
             - apply
             - refresh
             - destroy
+            - destroy-local
             - console
             - lint
           The 'buildkite' command accepts the following:

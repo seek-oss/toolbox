@@ -49,6 +49,7 @@ case "${_arg_command1}" in
       apply) tf_apply ;;
       refresh) tf_refresh ;;
       destroy) tf_destroy ;;
+      destroy-local) tf_destroy_local ;;
       console) tf_console ;;
       unlock) tf_unlock ;;
       output) tf_output ;;
