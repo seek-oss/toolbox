@@ -9,6 +9,7 @@ source /dev/null
 _tf_global_region="$(config_value terraform.global_region ap-southeast-2)"
 _tf_plan_file="${build_dir}/terraform.tfplan"
 _tf_state_file="${build_dir}/terraform.tfstate"
+_tf_output_file="${build_dir}/tf-output.json"
 
 # Quieten down Terraform messages.
 export TF_IN_AUTOMATION=1
@@ -221,7 +222,7 @@ tf_output_json() {
   tf_workspace
 
   info_msg "Extract Output from the Terraform workspace ${_arg_workspace} as json"
-  terraform output -json
+  terraform output -json > "${_tf_output_file}"
 }
 
 ##
