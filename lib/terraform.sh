@@ -211,7 +211,6 @@ tf_lint() {
 tf_output() {
   tf_workspace
 
-  info_msg "Extract Output from the Terraform workspace ${_arg_workspace}"
   terraform output
 }
 
