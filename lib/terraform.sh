@@ -181,7 +181,7 @@ tf_destroy_local() {
   tf_workspace
   mkdir -p "${build_dir}"
 
-  # Create a local Terraform plan by operating on local state.
+  # Create a local Terraform destroy plan by operating on local state.
   info_msg "Creating local Terraform destroy plan for workspace ${_arg_workspace}"
   terraform state pull > "${_tf_state_file}"
   terraform plan -destroy -state="${_tf_state_file}" -lock=false -out="${_tf_plan_file}"
