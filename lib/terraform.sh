@@ -221,7 +221,6 @@ tf_output() {
 tf_output_json() {
   tf_workspace
 
-  info_msg "Extract Output from the Terraform workspace ${_arg_workspace} as json"
   terraform output -json > "${_tf_output_file}"
 }
 
