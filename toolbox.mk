@@ -66,7 +66,7 @@ define HELP
 | terraform-init          | Initialises Terraform.                                                           |
 | terraform-validate      | Validates Terraform files in the current repository.                             |
 | terraform-workspace     | Selects the Terraform workspace. WORKSPACE must be specified.                    |
-| terraform-output        | Exports the Terraform outputs. WORKSPACE must be specified.                      |
+| terraform-output        | Prints Terraform outputs in HCL format. WORKSPACE must be specified.                      |
 | terraform-output-json   | Exports the Terraform outputs json format. WORKSPACE must be specified.          |
 | terraform-plan          | Creates a Terraform plan using remote state. WORKSPACE must be specified.        |
 | terraform-plan-local    | Creates a Terraform plan using local state. WORKSPACE must be specified.         |
