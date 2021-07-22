@@ -67,7 +67,7 @@ define HELP
 | terraform-validate      | Validates Terraform files in the current repository.                             |
 | terraform-workspace     | Selects the Terraform workspace. WORKSPACE must be specified.                    |
 | terraform-output        | Prints Terraform outputs in HCL format. WORKSPACE must be specified.                      |
-| terraform-output-json   | Exports the Terraform outputs json format. WORKSPACE must be specified.          |
+| terraform-output-json   | Prints Terraform outputs in JSON format. WORKSPACE must be specified.          |
 | terraform-plan          | Creates a Terraform plan using remote state. WORKSPACE must be specified.        |
 | terraform-plan-local    | Creates a Terraform plan using local state. WORKSPACE must be specified.         |
 | terraform-apply         | Applies previously created Terraform plan. WORKSPACE must be specified.          |
