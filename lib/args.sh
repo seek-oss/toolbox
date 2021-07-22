@@ -25,11 +25,11 @@ Second-level command.
             - output
             - output-json
             - plan
+            - plan-destroy-local
             - plan-local
             - apply
             - refresh
             - destroy
-            - destroy-local
             - console
             - lint
           The 'buildkite' command accepts the following:

@@ -9,7 +9,6 @@ source /dev/null
 _tf_global_region="$(config_value terraform.global_region ap-southeast-2)"
 _tf_plan_file="${build_dir}/terraform.tfplan"
 _tf_state_file="${build_dir}/terraform.tfstate"
-_tf_output_file="${build_dir}/tf-output.json"
 
 # Quieten down Terraform messages.
 export TF_IN_AUTOMATION=1
@@ -123,6 +122,19 @@ tf_plan() {
 }
 
 ##
+## Create a local Terraform destroy plan.
+##
+tf_plan_destroy_local() {
+  tf_workspace
+  mkdir -p "${build_dir}"
+
+  # Create a local Terraform destroy plan by operating on local state.
+  info_msg "Creating local Terraform destroy plan for workspace ${_arg_workspace}"
+  terraform state pull > "${_tf_state_file}"
+  terraform plan -destroy -state="${_tf_state_file}" -lock=false -out="${_tf_plan_file}"
+}
+
+##
 ## Create a local Terraform plan.
 ##
 tf_plan_local() {
@@ -172,19 +184,6 @@ tf_destroy() {
 
   info_msg "Destroying Terraform resources in workspace ${_arg_workspace}"
   TF_IN_AUTOMATION=0 terraform destroy
-}
-
-##
-## Create a local Terraform destroy plan.
-##
-tf_destroy_local() {
-  tf_workspace
-  mkdir -p "${build_dir}"
-
-  # Create a local Terraform destroy plan by operating on local state.
-  info_msg "Creating local Terraform destroy plan for workspace ${_arg_workspace}"
-  terraform state pull > "${_tf_state_file}"
-  terraform plan -destroy -state="${_tf_state_file}" -lock=false -out="${_tf_plan_file}"
 }
 
 ##
