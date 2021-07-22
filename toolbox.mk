@@ -149,9 +149,16 @@ endif
 ##
 ## Terraform targets that DO require a workspace (non-interactive).
 ##
-.PHONY: terraform-workspace terraform-output terraform-output-json terraform-plan terraform-plan-destroy-local terraform-plan-local terraform-apply terraform-refresh terraform-unlock
-terraform-workspace terraform-output terraform-output-json terraform-plan terraform-plan-destroy-local terraform-plan-local terraform-apply terraform-refresh terraform-unlock: terraform-ensure-workspace
+.PHONY: terraform-workspace terraform-plan terraform-plan-destroy-local terraform-plan-local terraform-apply terraform-refresh terraform-unlock
+terraform-workspace terraform-plan terraform-plan-destroy-local terraform-plan-local terraform-apply terraform-refresh terraform-unlock: terraform-ensure-workspace
 	@$(call banner,$@)
+	@$(call toolbox,toolbox -w "$(WORKSPACE)" -s "$(SKIP_INIT)" terraform "$(@:terraform-%=%)")
+
+##
+## Terraform targets that DO require a workspace (non-interactive).
+##
+.PHONY: terraform-output terraform-output-json
+terraform-output terraform-output-json: terraform-ensure-workspace
 	@$(call toolbox,toolbox -w "$(WORKSPACE)" -s "$(SKIP_INIT)" terraform "$(@:terraform-%=%)")
 
 ##
