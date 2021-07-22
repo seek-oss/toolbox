@@ -206,7 +206,7 @@ tf_lint() {
 }
 
 ##
-## To extract all the output values from a Terraform workspace
+## Prints Terraform outputs in HCL format.
 ##
 tf_output() {
   tf_workspace
