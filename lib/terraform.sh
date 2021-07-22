@@ -221,7 +221,7 @@ tf_output() {
 tf_output_json() {
   tf_workspace
 
-  terraform output -json > "${_tf_output_file}"
+  terraform output -json"
 }
 
 ##
