@@ -102,6 +102,11 @@ terraform:
     # order deployments within the Buildkite pipeline so that non-production workspaces are
     # deployed before production workspaces.
     is_production: false
+    # (Optional)
+    # Array of branch names that may be deployed using this workspace. If this property is
+    # not specified, only branches named "main" or "master" will result in a deployment.
+    branches:
+    - sandbox
 
 # (Optional)
 # Shell script configuration section.
@@ -180,10 +185,3 @@ buildkite:
 [02]: toolbox.mk
 [03]: https://github.com/seek-oss/toolbox/releases
 [04]: lib/schema.json
-
-
-<!--
-TODO:
-- Convert confiuration to simpler YAML and document full options Terraform style.
-- Create examples directory with working project (e.g., deploys an S3 bucket to multiple workspaces)
--->
