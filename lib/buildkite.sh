@@ -202,32 +202,26 @@ _bk_tf_apply_steps() {
   local total_non_production_workspaces
   total_non_production_workspaces="$(_bk_tf_total_non_production_workspaces)"
   if [[ "${total_non_production_workspaces}" != 0 ]]; then
-    local all_protected_branches
-    all_protected_branches="$(_bk_tf_protected_branches_filter)"
-    _bk_pause_step "Deploy pre-production" "${all_protected_branches}"
+    local non_production_protected_branches
+    non_production_protected_branches="$(_bk_tf_protected_branches_filter '.is_production != true')"
+    _bk_pause_step "Deploy pre-production" "${non_production_protected_branches}"
 
     # Apply non-production workspaces.
     _bk_tf_apply_steps_filter '.is_production != true'
   fi
 
-  # At this point, we have printed apply steps for all non-production workspaces. If there
-  # are no workspaces earmarked as production then return early.
+  # If there are any workspaces earmarked as production, then we wait for the previous
+  # steps to complete and apply the production plans.
   local total_production_workspaces
   total_production_workspaces="$(_bk_tf_total_production_workspaces)"
-  if [[ "${total_production_workspaces}" == 0 ]]; then
-    return 0
+  if [[ "${total_production_workspaces}" != 0 ]]; then
+    local production_protected_branches
+    production_protected_branches="$(_bk_tf_protected_branches_filter '.is_production == true')"
+    _bk_pause_step "Deploy production" "${production_protected_branches}"
+
+    # Apply production workspaces.
+    _bk_tf_apply_steps_filter '.is_production == true'
   fi
-
-  # At this point, we have printed apply steps for all non-production workspaces. Any remaining
-  # workspaces must therefore be production workspaces. We print a pause step at this point which
-  # only targets the production workspaces. If the pause step were to be applied more broadly,
-  # we'd end up with a dangling wait/block step for branches which aren't deployed to production.
-  local production_protected_branches
-  production_protected_branches="$(_bk_tf_protected_branches_filter '.is_production == true')"
-  _bk_pause_step "Deploy production" "${production_protected_branches}"
-
-  # Apply production workspaces.
-  _bk_tf_apply_steps_filter '.is_production == true'
 }
 
 ##
