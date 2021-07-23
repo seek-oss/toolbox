@@ -35,7 +35,7 @@ tf_init() {
     -backend-config=region="${_tf_global_region}" \
     -backend-config=bucket="${backend_bucket}" \
     -backend-config=key=terraform.tfstate \
-    -backend-config=dynamodb_table=terraform
+    -backend-config=dynamodb_table=terraform >&2
 
   echo
 }
@@ -122,6 +122,19 @@ tf_plan() {
 }
 
 ##
+## Create a local Terraform destroy plan.
+##
+tf_plan_destroy_local() {
+  tf_workspace
+  mkdir -p "${build_dir}"
+
+  # Create a local Terraform destroy plan by operating on local state.
+  info_msg "Creating local Terraform destroy plan for workspace ${_arg_workspace}"
+  terraform state pull > "${_tf_state_file}"
+  terraform plan -destroy -state="${_tf_state_file}" -lock=false -out="${_tf_plan_file}"
+}
+
+##
 ## Create a local Terraform plan.
 ##
 tf_plan_local() {
@@ -189,6 +202,24 @@ tf_console() {
 tf_lint() {
   info_msg "Linting Terraform files"
   terraform fmt -diff -check
+}
+
+##
+## Prints Terraform outputs in HCL format.
+##
+tf_output() {
+  tf_workspace
+
+  terraform output
+}
+
+##
+## Prints Terraform outputs in JSON format.
+##
+tf_output_json() {
+  tf_workspace
+
+  terraform output -json
 }
 
 ##

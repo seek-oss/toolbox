@@ -45,12 +45,15 @@ case "${_arg_command1}" in
       lint) tf_lint ;;
       validate) tf_validate ;;
       plan) tf_plan ;;
+      plan-destroy-local) tf_plan_destroy_local ;;
       plan-local) tf_plan_local ;;
       apply) tf_apply ;;
       refresh) tf_refresh ;;
       destroy) tf_destroy ;;
       console) tf_console ;;
       unlock) tf_unlock ;;
+      output) tf_output ;;
+      output-json) tf_output_json ;;
       *)
         die "Unrecognised Terraform command: ${_arg_command2}"
         ;;
