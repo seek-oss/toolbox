@@ -22,15 +22,15 @@ if [[ "${_arg_command1}" != internal ]]; then
       die "Toolbox config file ${_arg_config} specified by -c/--config argument does not exist."
     fi
     _config_file="${_arg_config}"
-  else
-    # No config file was specified on the command line. First, check TOOLBOX_CONFIG_FILE variable.
-    if [[ -n "${TOOLBOX_CONFIG_FILE:-}" ]]; then
-      if [[ ! -f "${TOOLBOX_CONFIG_FILE}" ]]; then
-        die "Toolbox config file ${TOOLBOX_CONFIG_FILE} specified by TOOLBOX_CONFIG_FILE variable does not exist."
-      fi
-      _config_file="${TOOLBOX_CONFIG_FILE}"
-    fi
 
+  elif [[ -n "${TOOLBOX_CONFIG_FILE:-}" ]]; then
+    # No config file was specified on the command line but TOOLBOX_CONFIG_FILE has been set.
+    if [[ ! -f "${TOOLBOX_CONFIG_FILE}" ]]; then
+      die "Toolbox config file ${TOOLBOX_CONFIG_FILE} specified by TOOLBOX_CONFIG_FILE variable does not exist."
+    fi
+    _config_file="${TOOLBOX_CONFIG_FILE}"
+
+  else
     # Search the default locations.
     for f in "${_default_config_files[@]}"; do
       if [[ -f "${f}" ]]; then

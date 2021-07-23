@@ -57,6 +57,12 @@
               },
               "is_production": {
                 "type": "boolean"
+              },
+              "branches": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
               }
             }
           }
