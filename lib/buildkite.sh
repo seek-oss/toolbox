@@ -44,9 +44,10 @@ _bk_wait_step() {
 ## Print block step.
 ##
 _bk_block_step() {
-  local protected_branches="${1}"
+  local msg="${1}"
+  local protected_branches="${2}"
   cat << EOF
-- block: ":rocket: Deploy"
+- block: ":rocket: ${msg}"
   blocked_state: running
   branches: "${protected_branches}"
 EOF
@@ -57,12 +58,13 @@ EOF
 ## of the buildkite.deploy_pause_type configuration property.
 ##
 _bk_pause_step() {
-  local protected_branches="${1}"
+  local msg="${1}"
+  local protected_branches="${2}"
   local pause_type
   pause_type="$(config_value buildkite.deploy_pause_type block)"
   case "${pause_type}" in
     wait) _bk_wait_step ;;
-    *) _bk_block_step "${protected_branches}" ;;
+    *) _bk_block_step "${msg}" "${protected_branches}" ;;
   esac
 }
 
@@ -202,7 +204,7 @@ _bk_tf_apply_steps() {
   if [[ "${total_non_production_workspaces}" != 0 ]]; then
     local all_protected_branches
     all_protected_branches="$(_bk_tf_protected_branches_filter)"
-    _bk_pause_step "${all_protected_branches}"
+    _bk_pause_step "Deploy pre-production" "${all_protected_branches}"
 
     # Apply non-production workspaces.
     _bk_tf_apply_steps_filter '.is_production != true'
@@ -222,7 +224,7 @@ _bk_tf_apply_steps() {
   # we'd end up with a dangling wait/block step for branches which aren't deployed to production.
   local production_protected_branches
   production_protected_branches="$(_bk_tf_protected_branches_filter '.is_production == true')"
-  _bk_pause_step "${production_protected_branches}"
+  _bk_pause_step "Deploy production" "${production_protected_branches}"
 
   # Apply production workspaces.
   _bk_tf_apply_steps_filter '.is_production == true'
