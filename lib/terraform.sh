@@ -214,7 +214,7 @@ tf_output() {
 }
 
 ##
-## To extract all the output values from a Terraform workspace as json
+## Prints Terraform outputs in JSON format.
 ##
 tf_output_json() {
   tf_workspace
