@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# set -x
+
 # Tell shellcheck we'll be referencing definitions in the source file but don't
 # actually source anything as all sourcing takes place up in bin.sh.
 # shellcheck source=lib/common.sh
@@ -44,10 +46,10 @@ _bk_wait_step() {
 ## Print block step.
 ##
 _bk_block_step() {
-  local protected_branches
-  protected_branches="$(_bk_tf_protected_branches)"
+  local protected_branches="${1}"
   cat << EOF
 - block: ":rocket: Deploy"
+  blocked_state: running
   branches: "${protected_branches}"
 EOF
 }
@@ -57,11 +59,12 @@ EOF
 ## of the buildkite.deploy_pause_type configuration property.
 ##
 _bk_pause_step() {
+  local protected_branches="${1}"
   local pause_type
   pause_type="$(config_value buildkite.deploy_pause_type block)"
   case "${pause_type}" in
     wait) _bk_wait_step ;;
-    *) _bk_block_step ;;
+    *) _bk_block_step "${protected_branches}" ;;
   esac
 }
 
@@ -126,14 +129,16 @@ EOF
 ## Print a Terraform plan step for each workspace.
 ##
 _bk_tf_plan_steps() {
-  if [[ "$(_bk_tf_total_workspace_steps)" == 0 ]]; then
+  local total_workspaces
+  total_workspaces="$(_bk_tf_total_workspaces)"
+  if [[ "${total_workspaces}" == 0 ]]; then
     return 0
   fi
 
   local workspace queue uploads downloads protected_branches unprotected_branches
   while IFS=$'\t' read -r workspace queue; do
-    protected_branches="$(_bk_tf_protected_branches "${workspace}")"
-    unprotected_branches="$(_bk_tf_unprotected_branches "${workspace}")"
+    protected_branches="$(_bk_tf_protected_branches_for_workspace "${workspace}")"
+    unprotected_branches="$(_bk_tf_unprotected_branches_for_workspace "${workspace}")"
 
     uploads="$(jq -c '[{
       "from": "'"${build_dir}/terraform.tfplan"'",
@@ -171,8 +176,9 @@ _bk_tf_plan_steps() {
       permit_on_passed: true
 EOF
   done < <(jq -r \
-    '.terraform.workspaces[]
-    | [.name, .queue]
+    '.terraform.workspaces // []
+    | map(select(.queue != null))
+    | map([.name, .queue])[]
     | @tsv' <<< "${config_json}")
 }
 
@@ -185,24 +191,39 @@ EOF
 ## Wait/Block -> Apply Non-Prod -> Wait/Block -> Apply Prod
 ##
 _bk_tf_apply_steps() {
-  if [[ "$(_bk_tf_total_workspace_steps)" == 0 ]]; then
+  local total_workspaces
+  total_workspaces="$(_bk_tf_total_workspaces)"
+  if [[ "${total_workspaces}" == 0 ]]; then
     return 0
   fi
 
-  # Wait for the plan steps to complete.
-  _bk_pause_step
+  # Wait for the plan steps to complete. Here, the pause step should run for all protected
+  # branches there must be at least one workspace that gets deployed via Buildkite (due to
+  # condition above), and we would have output a plan step for that workspace prior to this
+  # function being called.
+  local all_protected_branches
+  all_protected_branches="$(_bk_tf_protected_branches)"
+  _bk_pause_step "${all_protected_branches}"
 
   # Apply non-production workspaces.
+  # TODO: Make filtering the same across branches and steps i.e., ".is_production == true".
   _bk_tf_apply_steps_filter false
 
-  # Only print a pause step if there are non-production workspaces. In the odd case that
-  # all workspaces have been marked production we don't want to print a pause step at this
-  # point otherwise there will have been two in a row.
-  local total_non_prod_workspaces
-  total_non_prod_workspaces="$(jq '.terraform.workspaces | map(select(.is_production != true)) | length' <<< "${config_json}")"
-  if [[ "${total_non_prod_workspaces}" != 0 ]]; then
-    _bk_pause_step
+  # At this point, we have printed apply steps for all non-production workspaces. If there
+  # are no workspaces earmarked as production then return early.
+  local total_production_workspaces
+  total_production_workspaces="$(_bk_tf_total_production_workspaces)"
+  if [[ "${total_production_workspaces}" == 0 ]]; then
+    return 0
   fi
+
+  # At this point, we have printed apply steps for all non-production workspaces. Any remaining
+  # workspaces must therefore be production workspaces. We print a pause step at this point which
+  # only targets the production workspaces. If the pause step were to be applied more broadly,
+  # we'd end up with a dangling wait/block step for branches which aren't deployed to production.
+  local production_protected_branches
+  production_protected_branches="$(_bk_tf_protected_branches '.is_production == true')"
+  _bk_pause_step "${production_protected_branches}"
 
   # Apply production workspaces.
   _bk_tf_apply_steps_filter true
@@ -223,7 +244,7 @@ _bk_tf_apply_steps_filter() {
       continue
     fi
 
-    protected_branches="$(_bk_tf_protected_branches "${workspace}")"
+    protected_branches="$(_bk_tf_protected_branches_for_workspace "${workspace}")"
 
     uploads="$(jq -c \
       '.buildkite.artifacts.upload // []' <<< "${config_json}")"
@@ -249,43 +270,86 @@ _bk_tf_apply_steps_filter() {
   concurrency_group: ${_bk_pipeline_slug}/${workspace}
 EOF
   done < <(jq -r \
-    '.terraform.workspaces[]
-    | [.name, .queue, .is_production]
+    '.terraform.workspaces // []
+    | map(select(.queue != null))
+    | map([.name, .queue, .is_production])[]
     | @tsv' <<< "${config_json}")
 }
 
 ##
 ## Returns the total number of Terraform workspaces that specify a Buildkite queue.
 ##
-_bk_tf_total_workspace_steps() {
-  jq '.terraform.workspaces // [] | map(select(.queue != null)) | length' <<< "${config_json}"
+_bk_tf_total_workspaces() {
+  jq '.terraform.workspaces // []
+    | map(select(.queue != null))
+    | length' <<< "${config_json}"
 }
 
 ##
-## Return the set of branches that can be deployed.
+## Returns the total number of Terraform workspaces that specify a Buildkite queue
+## and correspond to production environments.
+##
+_bk_tf_total_production_workspaces() {
+  jq '.terraform.workspaces // []
+    | map(select(.queue != null and .is_production == true))
+    | length' <<< "${config_json}"
+}
+
+##
+## Returns the total number of Terraform workspaces that specify a Buildkite queue
+## and do not correspond to production environments.
+##
+_bk_tf_total_non_production_workspaces() {
+  local total_workspaces total_production_workspaces
+  total_workspaces="$(_bk_tf_total_workspaces)"
+  total_production_workspaces="$(_bk_tf_total_production_workspaces)"
+  echo $((total_workspaces - total_production_workspaces))
+}
+
+##
+## Return the set of branches that can be deployed applying an optionally specified
+## jq match condition.
 ##
 _bk_tf_protected_branches() {
-  local workspace="${1:-}"
-  if [[ -n "${workspace}" ]]; then
-    jq -r '.terraform.workspaces // []
-      | map(select(.name == "'"${workspace}"'"))
-      | .[].branches // ["master", "main"]
-      | unique
-      | join(" ")' <<< "${config_json}"
-  else
-    jq -r '.terraform.workspaces // []
-      | map(.branches // ["master", "main"])
-      | flatten
-      | unique
-      | join(" ")' <<< "${config_json}"
+  local match_condition="${1:-}"
+  local match_filter=
+  if [[ -n "${match_condition}" ]]; then
+    match_filter="| map(select(${match_condition}))"
   fi
+
+  jq -r \
+    '.terraform.workspaces // []
+    '"${match_filter}"'
+    | map(select(.queue != null))
+    | map(.branches // ["master", "main"])
+    | flatten
+    | unique
+    | join(" ")' <<< "${config_json}"
 }
 
 ##
-## Return the set of branches should not be deployed.
+## Return the set of branches that should not be deployed applying an optionally specified
+## jq match condition returning the result as branch name patterns.
 ##
 _bk_tf_unprotected_branches() {
   _bk_tf_protected_branches "${1:-}" | jq -Rr 'split(" ") | map("!" + .) | join(" ")'
+}
+
+##
+## Return the set of branches that can be deployed for the specified workspace.
+##
+_bk_tf_protected_branches_for_workspace() {
+  local workspace="${1}"
+  local name_match="^${workspace}$"
+  _bk_tf_protected_branches ".name | test(\"${name_match}\")"
+}
+
+##
+## Return the set of branches that should not be deployed for the specified
+## workspace as branch name patterns.
+##
+_bk_tf_unprotected_branches_for_workspace() {
+  _bk_tf_protected_branches_for_workspace "${1:-}" | jq -Rr 'split(" ") | map("!" + .) | join(" ")'
 }
 
 ##
@@ -295,16 +359,20 @@ _bk_snyk_steps() {
   local queue
   queue="$(config_value snyk.app_test.queue null)"
   if [[ "${queue}" != null ]]; then
+    local protected_branches unprotected_branches
+    protected_branches="$(_bk_tf_protected_branches)"
+    unprotected_branches="$(_bk_tf_unprotected_branches)"
+
     cat << EOF
 - label: ":mag: Snyk App Test"
-  if: "build.branch == 'master' || build.branch == 'main'"
+  branches: "${protected_branches}"
   commands:
   - make snyk-project
   - make snyk-app-test
   agents:
     queue: ${queue}
 - label: ":mag: Snyk App Test"
-  if: "build.branch != 'master' && build.branch != 'main'"
+  branches: "${unprotected_branches}"
   command: make snyk-app-test
   agents:
     queue: ${queue}
