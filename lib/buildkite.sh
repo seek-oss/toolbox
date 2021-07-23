@@ -199,7 +199,7 @@ _bk_tf_apply_steps() {
   # plan steps to complete and apply the non-production plans.
   local total_non_production_workspaces
   total_non_production_workspaces="$(_bk_tf_total_non_production_workspaces)"
-  if [[ "${total_non_production_workspaces}" > 0 ]]; then
+  if [[ "${total_non_production_workspaces}" != 0 ]]; then
     local all_protected_branches
     all_protected_branches="$(_bk_tf_protected_branches_filter)"
     _bk_pause_step "${all_protected_branches}"
@@ -328,6 +328,7 @@ _bk_tf_protected_branches_filter() {
 ## Return the set of branches that should not be deployed applying an optionally specified
 ## jq filter condition returning the result as branch name patterns.
 ##
+# shellcheck disable=SC2120
 _bk_tf_unprotected_branches_filter() {
   _bk_tf_protected_branches_filter "${1:-}" | jq -Rr 'split(" ") | map("!" + .) | join(" ")'
 }
