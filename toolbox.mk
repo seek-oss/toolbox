@@ -52,38 +52,41 @@ toolbox_tty = $(call _toolbox,$1,-ti)
 
 # Help message printed by the help target.
 define HELP
-+----------------------+---------------------------------------------------------------------------+
-| Make Target          | Description                                                               |
-|----------------------+---------------------------------------------------------------------------|
-| help                 | Displays this help message.                                               |
-| clean                | Deletes the target/ and .terraform/ directories.                          |
-|----------------------+---------------------------------------------------------------------------|
-| toolbox-version      | Prints Toolbox version information.                                       |
-| toolbox-upgrade      | Upgrades the version of Toolbox to the latest versioned release.          |
-| toolbox-bash         | Launch an interactive Bash shell in the Toolbox container.                |
-|----------------------+---------------------------------------------------------------------------|
-| terraform-lint       | Lints Terraform files in the current repository.                          |
-| terraform-init       | Initialises Terraform.                                                    |
-| terraform-validate   | Validates Terraform files in the current repository.                      |
-| terraform-workspace  | Selects the Terraform workspace. WORKSPACE must be specified.             |
-| terraform-plan       | Creates a Terraform plan using remote state. WORKSPACE must be specified. |
-| terraform-plan-local | Creates a Terraform plan using local state. WORKSPACE must be specified.  |
-| terraform-apply      | Applies previously created Terraform plan. WORKSPACE must be specified.   |
-| terraform-refresh    | Refreshes remote Terraform state. WORKSPACE must be specified.            |
-| terraform-destroy    | Destroys Terraform-managed infrastructure. WORKSPACE must be specified.   |
-| terraform-console    | Launches a Terraform console. WORKSPACE must be specified.                |
-| terraform-unlock     | Force unlocks the Terraform state. WORKSPACE must be specified.           |
-|----------------------+---------------------------------------------------------------------------|
-| buildkite-pipeline   | Prints the generated Buildkite pipeline to stdout.                        |
-|----------------------+---------------------------------------------------------------------------|
-| shell-shfmt          | Runs shfmt against shell files in the current repository.                 |
-| shell-shellcheck     | Runs shellcheck against shell files in the current repository.            |
-| shell-lint           | Runs shfmt and shellcheck against shell files in the current repository.  |
-|----------------------+---------------------------------------------------------------------------|
-| snyk-project         | Creates a project on the Snyk website for the current repository.         |
-| snyk-app-test        | Runs a Snyk application test.                                             |
-| snyk-iac-test        | Runs a Snyk infrastructure test.                                          |
-+----------------------+---------------------------------------------------------------------------+
++------------------------------+----------------------------------------------------------------------------------+
+| Make Target                  | Description                                                                      |
+|------------------------------+----------------------------------------------------------------------------------|
+| help                         | Displays this help message.                                                      |
+| clean                        | Deletes the target/ and .terraform/ directories.                                 |
+|------------------------------+----------------------------------------------------------------------------------|
+| toolbox-version              | Prints Toolbox version information.                                              |
+| toolbox-upgrade              | Upgrades the version of Toolbox to the latest versioned release.                 |
+| toolbox-bash                 | Launch an interactive Bash shell in the Toolbox container.                       |
+|------------------------------+----------------------------------------------------------------------------------|
+| terraform-lint               | Lints Terraform files in the current repository.                                 |
+| terraform-init               | Initialises Terraform.                                                           |
+| terraform-validate           | Validates Terraform files in the current repository.                             |
+| terraform-workspace          | Selects the Terraform workspace. WORKSPACE must be specified.                    |
+| terraform-output             | Prints Terraform outputs in HCL format. WORKSPACE must be specified.             |
+| terraform-output-json        | Prints Terraform outputs in JSON format. WORKSPACE must be specified.            |
+| terraform-plan               | Creates a Terraform plan using remote state. WORKSPACE must be specified.        |
+| terraform-plan-destroy-local | Creates a Terraform destroy plan using local state. WORKSPACE must be specified. |
+| terraform-plan-local         | Creates a Terraform plan using local state. WORKSPACE must be specified.         |
+| terraform-apply              | Applies previously created Terraform plan. WORKSPACE must be specified.          |
+| terraform-refresh            | Refreshes remote Terraform state. WORKSPACE must be specified.                   |
+| terraform-destroy            | Destroys Terraform-managed infrastructure. WORKSPACE must be specified.          |
+| terraform-console            | Launches a Terraform console. WORKSPACE must be specified.                       |
+| terraform-unlock             | Force unlocks the Terraform state. WORKSPACE must be specified.                  |
+|------------------------------+----------------------------------------------------------------------------------|
+| buildkite-pipeline           | Prints the generated Buildkite pipeline to stdout.                               |
+|------------------------------+----------------------------------------------------------------------------------|
+| shell-shfmt                  | Runs shfmt against shell files in the current repository.                        |
+| shell-shellcheck             | Runs shellcheck against shell files in the current repository.                   |
+| shell-lint                   | Runs shfmt and shellcheck against shell files in the current repository.         |
+|------------------------------+----------------------------------------------------------------------------------|
+| snyk-project                 | Creates a project on the Snyk website for the current repository.                |
+| snyk-app-test                | Runs a Snyk application test.                                                    |
+| snyk-iac-test                | Runs a Snyk infrastructure test.                                                 |
++------------------------------+----------------------------------------------------------------------------------+
 endef
 export HELP
 
@@ -146,9 +149,16 @@ endif
 ##
 ## Terraform targets that DO require a workspace (non-interactive).
 ##
-.PHONY: terraform-workspace terraform-plan terraform-plan-local terraform-apply terraform-refresh terraform-unlock
-terraform-workspace terraform-plan terraform-plan-local terraform-apply terraform-refresh terraform-unlock: terraform-ensure-workspace
+.PHONY: terraform-workspace terraform-plan terraform-plan-destroy-local terraform-plan-local terraform-apply terraform-refresh terraform-unlock
+terraform-workspace terraform-plan terraform-plan-destroy-local terraform-plan-local terraform-apply terraform-refresh terraform-unlock: terraform-ensure-workspace
 	@$(call banner,$@)
+	@$(call toolbox,toolbox -w "$(WORKSPACE)" -s "$(SKIP_INIT)" terraform "$(@:terraform-%=%)")
+
+##
+## Terraform targets that DO require a workspace (non-interactive).
+##
+.PHONY: terraform-output terraform-output-json
+terraform-output terraform-output-json: terraform-ensure-workspace
 	@$(call toolbox,toolbox -w "$(WORKSPACE)" -s "$(SKIP_INIT)" terraform "$(@:terraform-%=%)")
 
 ##
