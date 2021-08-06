@@ -118,7 +118,9 @@ tf_plan() {
 
   # Create a Terraform plan.
   info_msg "Creating Terraform plan for workspace ${_arg_workspace}"
-  terraform plan -out="${_tf_plan_file}"
+  terraform plan -out="${_tf_plan_file}" -detailed-exitcode
+  plan_return_code="$?"
+  bk_plan_annotate "${plan_return_code}"
 }
 
 ##
@@ -131,7 +133,9 @@ tf_plan_destroy_local() {
   # Create a local Terraform destroy plan by operating on local state.
   info_msg "Creating local Terraform destroy plan for workspace ${_arg_workspace}"
   terraform state pull > "${_tf_state_file}"
-  terraform plan -destroy -state="${_tf_state_file}" -lock=false -out="${_tf_plan_file}"
+  terraform plan -destroy -state="${_tf_state_file}" -lock=false -out="${_tf_plan_file}" -detailed-exitcode
+  plan_return_code="$?"
+  bk_plan_annotate "${plan_return_code}"
 }
 
 ##
@@ -144,7 +148,40 @@ tf_plan_local() {
   # Create a local Terraform plan by operating on local state.
   info_msg "Creating local Terraform plan for workspace ${_arg_workspace}"
   terraform state pull > "${_tf_state_file}"
-  terraform plan -state="${_tf_state_file}" -lock=false -out="${_tf_plan_file}"
+  terraform plan -state="${_tf_state_file}" -lock=false -out="${_tf_plan_file}" -detailed-exitcode
+  plan_return_code="$?"
+  bk_plan_annotate "${plan_return_code}"
+}
+
+##
+## Generate an annotation based on a plan result and a plan file
+##
+## This function assumes that a plan file exists at ${_tf_plan_file}, and accepts a single argument which is the return
+## code of terraform plan -detailed-exitcode
+##
+bk_plan_annotate() {
+  local plan_return_code
+  plan_return_code="${1}"
+
+  info_msg "Annotating build with plan output"
+
+  if [[ "${plan_return_code}" -eq "0" ]]; then
+    buildkite-agent annotate "**${_arg_workspace}**: Successful plan with no changes" --style success --context "${_arg_workspace}"
+  else
+    if [[ "${plan_return_code}" -eq "1" ]]; then
+      buildkite-agent annotate "**${_arg_workspace}**: Error while planning" --style error --context "${_arg_workspace}"
+    else
+      buildkite-agent annotate "**${_arg_workspace}**: Successful plan with changes" --style info --context "${_arg_workspace}"
+    fi
+    { echo -e ''
+      echo -e '<details>'
+      echo -e '<summary>Plan output</summary>'
+      echo -e '<pre class="term"><code>'
+      terraform show "${_tf_plan_file}" | terminal-to-html
+      echo -e '</code></pre>'
+      echo -e '</details>'
+    } | buildkite-agent annotate --append --context "${_arg_workspace}"
+  fi
 }
 
 ##
