@@ -174,10 +174,15 @@ terraform-destroy terraform-console: terraform-ensure-workspace
 ##
 ## Buildkite targets.
 ##
-.PHONY: buildkite-pipeine
+.PHONY: buildkite-pipeline
 buildkite-pipeline:
 	@$(call banner,$@)
 	@$(call toolbox,toolbox buildkite "$(@:buildkite-%=%)")
+
+.PHONY: buildkite-plan-annotate
+buildkite-plan-annotate:
+	@$(call banner,$@)
+	@$(call toolbox,toolbox -w "$(WORKSPACE)" buildkite "$(@:buildkite-%=%)")
 
 ##
 ## Shell targets.
