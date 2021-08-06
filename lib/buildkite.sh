@@ -412,6 +412,7 @@ bk_plan_annotate() {
     else
       buildkite-agent annotate "**${_arg_workspace}**: Successful plan with changes" --style info --context "${_arg_workspace}"
       {
+        echo -e "**${_arg_workspace}**: Successful plan with changes"
         echo -e ''
         echo -e '<details>'
         echo -e '<summary>Plan output</summary>'
@@ -419,10 +420,13 @@ bk_plan_annotate() {
         terraform show "${_tf_plan_file}" | terminal-to-html
         echo -e '</code></pre>'
         echo -e '</details>'
-      } | buildkite-agent annotate --append --context "${_arg_workspace}"
+      } | buildkite-agent annotate --context "${_arg_workspace}" --style info
     fi
   else
-    buildkite-agent annotate "**${_arg_workspace}**: Error while planning" --style error --context "${_arg_workspace}"
-    buildkite-agent annotate "Consult [the failing job for more information](#${BUILDKITE_JOB_ID})" --style error --context "${_arg_workspace}" --append
+    {
+      echo -e "**${_arg_workspace}**: Error while planning"
+      echo -e ''
+      echo -e "Consult [the failing job](#${BUILDKITE_JOB_ID}) for more information"
+    } | buildkite-agent annotate --style error --context "${_arg_workspace}"
   fi
 }
