@@ -42,6 +42,8 @@ _toolbox = \
 	docker run --rm $2 \
 		-e TOOLBOX_CONFIG_FILE \
 		-e BUILDKITE_PIPELINE_SLUG \
+		-e BUILDKITE_JOB_ID \
+		-e BUILDKITE_AGENT_ACCESS_TOKEN \
 		-e TERM \
 		-v "$$(pwd):/work" \
 		-v "$(HOME)/.aws:/root/.aws" \
