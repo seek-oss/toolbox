@@ -173,7 +173,8 @@ bk_plan_annotate() {
     else
       buildkite-agent annotate "**${_arg_workspace}**: Successful plan with changes" --style info --context "${_arg_workspace}"
     fi
-    { echo -e ''
+    {
+      echo -e ''
       echo -e '<details>'
       echo -e '<summary>Plan output</summary>'
       echo -e '<pre class="term"><code>'
