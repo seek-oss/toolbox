@@ -404,7 +404,7 @@ bk_plan_annotate() {
 
   info_msg "Annotating build with plan output"
 
-  _tf_plan_file="${build_dir}/terraform.tfplan"
+  local tf_plan_file="${build_dir}/terraform.tfplan"
   if [[ -f "${_tf_plan_file}" ]]; then
     is_all_no_ops=$(terraform show -json "${_tf_plan_file}" | jq '[.resource_changes[].change.actions] | flatten | all(. == "no-op")')
     if [[ "${is_all_no_ops}" == "true" ]]; then
