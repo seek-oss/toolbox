@@ -406,6 +406,7 @@ bk_plan_annotate() {
 
   local tf_plan_file="${build_dir}/terraform.tfplan"
   if [[ -f "${tf_plan_file}" ]]; then
+    local is_all_no_ops
     is_all_no_ops=$(terraform show -json "${tf_plan_file}" | jq '[.resource_changes[].change.actions] | flatten | all(. == "no-op")')
     if [[ "${is_all_no_ops}" == "true" ]]; then
       buildkite-agent annotate "**${_arg_workspace}**: Successful plan with no changes" --style success --context "${_arg_workspace}"
