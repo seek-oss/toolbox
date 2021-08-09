@@ -164,7 +164,9 @@ _bk_tf_plan_steps() {
   concurrency_group: ${_bk_pipeline_slug}/${workspace}
 - label: ":terraform: Tentative plan [${workspace}]"
   branches: "${unprotected_branches}"
-  command: make terraform-plan-local WORKSPACE=${workspace}
+  command:
+  - make terraform-plan-local WORKSPACE=${workspace}
+  - make buildkite-plan-annotate WORKSPACE=${workspace}
   plugins:
   - artifacts#${_bk_artifacts_plugin_version}:
       upload: ${uploads}
@@ -381,5 +383,51 @@ EOF
   agents:
     queue: ${queue}
 EOF
+  fi
+}
+
+##
+## Generate an annotation for the build based on the plan result.
+##
+## This function looks for a plan file at "${build_dir}/terraform.tfplan".
+## If there is no file, we assume the plan failed, and we create an error annotation with a link to the failed job.
+## If there is a file, we inspect the .resource_changes[].change.actions fields for each resource.
+## If all of these fields are "no-op", the plan has succeeded with no changes.
+## If any of these fields are not "no-op", the plan has succeeded with changes. In this case, we do a terraform show
+## and render these changes in the annotation.
+##
+bk_plan_annotate() {
+  # Ensure that a workspace argument (-w/--workspace) was specified.
+  if [[ -z "${_arg_workspace:-}" ]]; then
+    die "No Terraform workspace specified. This command requires a --workspace argument."
+  fi
+
+  info_msg "Annotating build with plan output"
+
+  local tf_plan_file="${build_dir}/terraform.tfplan"
+  if [[ -f "${tf_plan_file}" ]]; then
+    local is_all_no_ops
+    is_all_no_ops=$(terraform show -json "${tf_plan_file}" | jq '[.resource_changes[].change.actions] | flatten | all(. == "no-op")')
+    if [[ "${is_all_no_ops}" == "true" ]]; then
+      buildkite-agent annotate "**${_arg_workspace}**: Successful plan with no changes" --style success --context "${_arg_workspace}"
+    else
+      buildkite-agent annotate "**${_arg_workspace}**: Successful plan with changes" --style info --context "${_arg_workspace}"
+      {
+        echo -e "**${_arg_workspace}**: Successful plan with changes"
+        echo -e ''
+        echo -e '<details>'
+        echo -e '<summary>Plan output</summary>'
+        echo -e '<pre class="term"><code>'
+        terraform show "${tf_plan_file}" | terminal-to-html
+        echo -e '</code></pre>'
+        echo -e '</details>'
+      } | buildkite-agent annotate --context "${_arg_workspace}" --style info
+    fi
+  else
+    {
+      echo -e "**${_arg_workspace}**: Error while planning"
+      echo -e ''
+      echo -e "Consult [the failing job](#${BUILDKITE_JOB_ID}) for more information"
+    } | buildkite-agent annotate --style error --context "${_arg_workspace}"
   fi
 }

@@ -42,6 +42,8 @@ _toolbox = \
 	docker run --rm $2 \
 		-e TOOLBOX_CONFIG_FILE \
 		-e BUILDKITE_PIPELINE_SLUG \
+		-e BUILDKITE_JOB_ID \
+		-e BUILDKITE_AGENT_ACCESS_TOKEN \
 		-e TERM \
 		-v "$$(pwd):/work" \
 		-v "$(HOME)/.aws:/root/.aws" \
@@ -170,12 +172,20 @@ terraform-destroy terraform-console: terraform-ensure-workspace
 	@$(call toolbox_tty,toolbox -w "$(WORKSPACE)" -s "$(SKIP_INIT)" terraform "$(@:terraform-%=%)")
 
 ##
-## Buildkite targets.
+## Buildkite targets that DO require a workspace
 ##
-.PHONY: buildkite-pipeine
+.PHONY: buildkite-pipeline
 buildkite-pipeline:
 	@$(call banner,$@)
 	@$(call toolbox,toolbox buildkite "$(@:buildkite-%=%)")
+
+##
+## Buildkite targets that DON'T require a workspace
+##
+.PHONY: buildkite-plan-annotate
+buildkite-plan-annotate:
+	@$(call banner,$@)
+	@$(call toolbox,toolbox -w "$(WORKSPACE)" buildkite "$(@:buildkite-%=%)")
 
 ##
 ## Shell targets.
