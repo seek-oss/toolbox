@@ -172,13 +172,16 @@ terraform-destroy terraform-console: terraform-ensure-workspace
 	@$(call toolbox_tty,toolbox -w "$(WORKSPACE)" -s "$(SKIP_INIT)" terraform "$(@:terraform-%=%)")
 
 ##
-## Buildkite targets.
+## Buildkite targets that DO require a workspace
 ##
 .PHONY: buildkite-pipeline
 buildkite-pipeline:
 	@$(call banner,$@)
 	@$(call toolbox,toolbox buildkite "$(@:buildkite-%=%)")
 
+##
+## Buildkite targets that DON'T require a workspace
+##
 .PHONY: buildkite-plan-annotate
 buildkite-plan-annotate:
 	@$(call banner,$@)
