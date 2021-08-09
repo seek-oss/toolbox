@@ -389,7 +389,7 @@ EOF
 ##
 ## Generate an annotation for the build based on the plan result
 ##
-## This function looks for a plan file at "${build_dir}/terraform.tfplan"
+## This function looks for a plan file at "${build_dir}/terraform.tfplan".
 ## If there is no file, we assume the plan failed, and we create an error annotation with a link to the failed job
 ## If there is a file, we inspect the .resource_changes[].change.actions fields for each resource.
 ## If all of these fields are "no-op", the plan has succeeded with no changes
