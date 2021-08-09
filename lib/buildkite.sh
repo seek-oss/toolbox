@@ -392,7 +392,7 @@ EOF
 ## This function looks for a plan file at "${build_dir}/terraform.tfplan".
 ## If there is no file, we assume the plan failed, and we create an error annotation with a link to the failed job.
 ## If there is a file, we inspect the .resource_changes[].change.actions fields for each resource.
-## If all of these fields are "no-op", the plan has succeeded with no changes
+## If all of these fields are "no-op", the plan has succeeded with no changes.
 ## If any of these fields are not "no-op", the plan has succeeded with changes. In this case, we do a terraform show
 ## and render these changes in the annotation.
 ##
