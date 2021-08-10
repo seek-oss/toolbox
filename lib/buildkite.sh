@@ -393,8 +393,8 @@ EOF
 ## If there is no file, we assume the plan failed, and we create an error annotation with a link to the failed job.
 ## If there is a file, we inspect the .resource_changes[].change.actions fields for each resource.
 ## If all of these fields are "no-op", the plan has succeeded with no changes.
-## If any of these fields are not "no-op", the plan has succeeded with changes. In this case, we do a terraform show
-## and render these changes in the annotation.
+## If any of these fields are not "no-op", the plan has succeeded with changes, and we link to the job for further
+## inspection.
 ##
 bk_plan_annotate() {
   # Ensure that a workspace argument (-w/--workspace) was specified.
@@ -415,12 +415,7 @@ bk_plan_annotate() {
       {
         echo -e "**${_arg_workspace}**: Successful plan with changes"
         echo -e ''
-        echo -e '<details>'
-        echo -e '<summary>Plan output</summary>'
-        echo -e '<pre class="term"><code>'
-        terraform show "${tf_plan_file}" | terminal-to-html
-        echo -e '</code></pre>'
-        echo -e '</details>'
+        echo -e "Consult [the job](#${BUILDKITE_JOB_ID}) for more information"
       } | buildkite-agent annotate --context "${_arg_workspace}" --style info
     fi
   else
