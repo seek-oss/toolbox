@@ -17,7 +17,7 @@ ARG BUILDKITE_AGENT_VERSION=3.32.0
 
 # Install OS packages.
 RUN apk add --no-cache \
-    bash ca-certificates curl git jq make ncurses openssh perl xz zip gzip
+    bash ca-certificates curl docker git jq make ncurses openssh perl xz zip gzip
 
 # Install glibc compatibility for Alpine which is required to run AWS CLI V2. See comment here:
 # https://github.com/aws/aws-cli/issues/4685#issuecomment-615872019

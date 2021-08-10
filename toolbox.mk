@@ -1,5 +1,12 @@
 # Version of Toolbox to use.
-TOOLBOX_VERSION := latest
+TOOLBOX_VERSION ?= latest
+
+# Toolbox Docker image.
+TOOLBOX_IMAGE ?= seek/toolbox:$(TOOLBOX_VERSION)
+
+# The TOOLBOX_CONFIG_FILE variable can be specified by the caller to override
+# the default config file locations.
+TOOLBOX_CONFIG_FILE ?=
 
 # The WORKSPACE variable is required by certain targets and should be
 # provided by the caller in the form `make target WORKSPACE=workspace`.
@@ -10,17 +17,10 @@ WORKSPACE ?=
 # Terraform has already been initialised for the project.
 SKIP_INIT ?= false
 
-# The TOOLBOX_CONFIG_FILE variable can be specified by the caller to override
-# the default config file locations.
-TOOLBOX_CONFIG_FILE ?=
-
 # The Buildkite pipeline slug is used when generating the pipeline document.
 # When running on an agent the BUILDKITE_PIPELINE_SLUG will be present.
 # A default value is set for local testing purposes.
 export BUILDKITE_PIPELINE_SLUG ?= $(shell basename $(shell pwd))
-
-# Toolbox Docker image.
-toolbox_image := seek/toolbox:$(TOOLBOX_VERSION)
 
 # Local build artifacts directory.
 build_dir := target
@@ -47,8 +47,9 @@ _toolbox = \
 		-e TERM \
 		-v "$$(pwd):/work" \
 		-v "$(HOME)/.aws:/root/.aws" \
+		-v "/var/run/docker.sock:/var/run/docker.sock" \
 		-w /work \
-		"$(toolbox_image)" $1
+		"$(TOOLBOX_IMAGE)" $1
 toolbox     = $(call _toolbox,$1)
 toolbox_tty = $(call _toolbox,$1,-ti)
 
@@ -80,6 +81,7 @@ define HELP
 | terraform-unlock             | Force unlocks the Terraform state. WORKSPACE must be specified.                  |
 |------------------------------+----------------------------------------------------------------------------------|
 | buildkite-pipeline           | Prints the generated Buildkite pipeline to stdout.                               |
+| buildkite-plan-annotate      | Annotates the current Buildkite pipeline with details of the Terraform plan.     |
 |------------------------------+----------------------------------------------------------------------------------|
 | shell-shfmt                  | Runs shfmt against shell files in the current repository.                        |
 | shell-shellcheck             | Runs shellcheck against shell files in the current repository.                   |

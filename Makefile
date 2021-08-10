@@ -40,7 +40,7 @@ push-latest:
 .PHONY: pin
 pin: $(build_dir)
 	@$(call banner,$@)
-	@sed "s/TOOLBOX_VERSION := .*/TOOLBOX_VERSION := $(RELEASE_VERSION)/" toolbox.mk > $(build_dir)/toolbox.mk
+	@sed "s/TOOLBOX_VERSION ?= .*/TOOLBOX_VERSION ?= $(RELEASE_VERSION)/" toolbox.mk > $(build_dir)/toolbox.mk
 	@echo "Created $(RELEASE_ARCHIVE) pinned to version $(RELEASE_VERSION)" >&2
 
 ##
