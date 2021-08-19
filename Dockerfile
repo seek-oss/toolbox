@@ -12,7 +12,6 @@ ARG SHFMT_VERSION=3.3.0
 ARG YQ_VERSION=4.9.3
 ARG SCHMA_VERSION=0.0.1
 ARG SNYK_VERSION=1.621.0
-ARG TERMINAL_TO_HTML_VERSION=3.6.1
 ARG BUILDKITE_AGENT_VERSION=3.32.0
 
 # Install OS packages.
@@ -66,13 +65,6 @@ RUN curl -Lso /usr/local/bin/schma \
 RUN curl -Lso /usr/local/bin/snyk \
   "https://github.com/snyk/snyk/releases/download/v${SNYK_VERSION}/snyk-alpine" \
   && chmod +x /usr/local/bin/snyk
-
-# Install terminal-to-html
-RUN curl -Lso terminal-to-html.gz \
-  https://github.com/buildkite/terminal-to-html/releases/download/v${TERMINAL_TO_HTML_VERSION}/terminal-to-html-${TERMINAL_TO_HTML_VERSION}-linux-amd64.gz \
-  && gunzip terminal-to-html.gz \
-  && mv terminal-to-html /usr/local/bin/terminal-to-html \
-  && chmod +x /usr/local/bin/terminal-to-html
 
 # Install the buildkite-agent
 RUN curl -Lso buildkite-agent.tar.gz \
