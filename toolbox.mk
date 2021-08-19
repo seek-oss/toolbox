@@ -40,6 +40,8 @@ banner = \
 # Macros for executing running a command in the toolbox container.
 _toolbox = \
 	docker run --rm $2 \
+		-e HOST_WORK_DIR=$(shell pwd) \
+		-e HOST_HOME_DIR=$(HOME) \
 		-e TOOLBOX_CONFIG_FILE \
 		-e BUILDKITE_PIPELINE_SLUG \
 		-e BUILDKITE_JOB_ID \
