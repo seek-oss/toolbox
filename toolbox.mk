@@ -1,13 +1,3 @@
-# This needs to be the first entry
-# https://www.gnu.org/software/make/manual/html_node/Special-Variables.html#Special-Variables
-# When running docker from a makefile target you may need to mount a volume
-# from the real host path into the docker container.
-export HOST_ROOT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-
-# When running docker from a makefile target you may need to mount the home directory
-# of the current user running the makefile target.
-export HOST_HOME_DIR := $(HOME)
-
 # Version of Toolbox to use.
 TOOLBOX_VERSION ?= latest
 
@@ -50,8 +40,8 @@ banner = \
 # Macros for executing running a command in the toolbox container.
 _toolbox = \
 	docker run --rm $2 \
-		-e HOST_ROOT_DIR \
-		-e HOST_HOME_DIR \
+		-e HOST_WORK_DIR=$(shell pwd) \
+		-e HOST_HOME_DIR=$(HOME) \
 		-e TOOLBOX_CONFIG_FILE \
 		-e BUILDKITE_PIPELINE_SLUG \
 		-e BUILDKITE_JOB_ID \

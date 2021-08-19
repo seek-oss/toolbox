@@ -180,17 +180,6 @@ buildkite:
       to: target/package.zip
 ```
 
-## Environment Variables
-
-The following environment variables are available:
-
-- `HOST_ROOT_DIR`: the path of [toolbox.mk][02] normally situated in the root of the repository. When
-running docker from a makefile target you may need to mount a volume from the real host path into the
-docker container.
-- `HOST_HOME_DIR`: home directory of the current user running the makefile target. When running docker
-from a makefile target you may need to mount the home directory of the current user running the makefile
-target. Useful for mapping aws credential files into the docker container.
-
 <!-- Links -->
 [01]: Dockerfile
 [02]: toolbox.mk
