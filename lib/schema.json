@@ -46,7 +46,7 @@
               },
               "var_file": {
                 "type": "string",
-                "pattern": ".tfvars$"
+                "pattern": ".(tfvars|json)$"
               },
               "aws_account_id": {
                 "type": "string",
