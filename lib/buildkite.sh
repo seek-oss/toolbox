@@ -150,7 +150,9 @@ _bk_tf_plan_steps() {
     cat << EOF
 - label: ":terraform: Plan [${workspace}]"
   branches: "${protected_branches}"
-  command: make terraform-plan WORKSPACE=${workspace}
+  command:
+  - make terraform-plan WORKSPACE=${workspace}
+  - make buildkite-plan-annotate WORKSPACE=${workspace}
   plugins:
   - artifacts#${_bk_artifacts_plugin_version}:
       upload: ${uploads}
