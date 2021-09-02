@@ -398,11 +398,15 @@ EOF
 ## If any of these fields are not "no-op", the plan has succeeded with changes, and we link to the job for further
 ## inspection.
 ##
+## If this function errors at all, we don't want it to cause the plan to fail.
+##
 bk_plan_annotate() {
   # Ensure that a workspace argument (-w/--workspace) was specified.
   if [[ -z "${_arg_workspace:-}" ]]; then
     die "No Terraform workspace specified. This command requires a --workspace argument."
   fi
+
+  trap 'error_msg "Error while annotating plan. INVESTIGATE THIS. Continuing anyway" && exit 0' ERR
 
   info_msg "Annotating build with plan output"
 

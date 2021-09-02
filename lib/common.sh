@@ -69,6 +69,19 @@ info_msg() {
 }
 
 ##
+## Pretty prints an error message.
+##
+error_msg() {
+  local msg="${1}"
+  local color_on color_off
+  if [[ -n "${TERM:-}" && "${TERM}" != dumb ]]; then
+    color_on="$(tput setaf 1)"
+    color_off="$(tput sgr0)"
+  fi
+  printf "%s\n" "${color_on:-}=> => ${msg}${color_off:-}" >&2
+}
+
+##
 ## Reads a config property from the config file or returns a default value (if provided).
 ## The property argument should be specified relative to the top-level " property
 ## and should not include a leading "." character.
