@@ -394,6 +394,7 @@ EOF
 ## This function looks for a plan file at "${build_dir}/terraform.tfplan".
 ## If there is no file, we assume the plan failed, and we create an error annotation with a link to the failed job.
 ## If there is a file, we inspect the .resource_changes[].change.actions fields for each resource.
+## If there is no .resource_changes array, that indicate that this is a new workspace with no resources, so a clean plan.
 ## If all of these fields are "no-op", the plan has succeeded with no changes.
 ## If any of these fields are not "no-op", the plan has succeeded with changes, and we link to the job for further
 ## inspection.
@@ -409,7 +410,7 @@ bk_plan_annotate() {
   local tf_plan_file="${build_dir}/terraform.tfplan"
   if [[ -f "${tf_plan_file}" ]]; then
     local is_all_no_ops
-    is_all_no_ops=$(terraform show -json "${tf_plan_file}" | jq '[.resource_changes[].change.actions] | flatten | all(. == "no-op")')
+    is_all_no_ops=$(terraform show -json "${tf_plan_file}" | jq 'if .resource_changes == null then true else [.resource_changes[].change.actions] | flatten | all(. == "no-op") end')
     if [[ "${is_all_no_ops}" == "true" ]]; then
       buildkite-agent annotate "**${_arg_workspace}**: Successful plan with no changes" --style success --context "${_arg_workspace}"
     else
