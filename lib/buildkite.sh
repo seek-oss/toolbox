@@ -166,7 +166,7 @@ _bk_tf_plan_steps() {
     return 0
   fi
 
-  local workspace queue uploads downloads protected_branches unprotected_branches artifact_plugin
+  local workspace queue protected_branches unprotected_branches artifact_plugin
   while IFS=$'\t' read -r workspace queue; do
     protected_branches="$(_bk_tf_protected_branches_for_workspace "${workspace}")"
     unprotected_branches="$(_bk_tf_unprotected_branches_for_workspace "${workspace}")"
@@ -259,7 +259,7 @@ _bk_tf_apply_steps_filter() {
     match_filter="| map(select(${match_condition}))"
   fi
 
-  local workspace queue uploads downloads protected_branches artifact_plugin
+  local workspace queue protected_branches artifact_plugin
   while IFS=$'\t' read -r workspace queue; do
     protected_branches="$(_bk_tf_protected_branches_for_workspace "${workspace}")"
     artifact_plugin="$(_bk_tf_artifacts_plugin "${workspace}" apply)"
