@@ -51,8 +51,8 @@ if [[ "${_arg_command1}" != internal ]]; then
     die "Configuration file is invalid. See schema violations above."
   fi
 
-  # Read the config file
-  config_json="$(yq eval -j "${_config_file}")"
+  # Read the config file.
+  config_json="$(yq eval -o=json "${_config_file}")"
 fi
 
 ##

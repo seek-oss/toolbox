@@ -10,7 +10,7 @@ source /dev/null
 _bk_pipeline_slug="${BUILDKITE_PIPELINE_SLUG:-$(basename "$(pwd)")}"
 
 # Version of https://github.com/buildkite-plugins/artifacts-buildkite-plugin to use.
-_bk_artifacts_plugin_version=v1.3.0
+_bk_artifacts_plugin_version=v1.4.0
 
 ##
 ## Print the Buildkite pipeline to stdout.
@@ -126,6 +126,37 @@ EOF
 }
 
 ##
+##
+##
+_bk_tf_artifacts_plugin() {
+  local workspace="${1}"
+  local step_type="${2}"
+
+  local upload_defaults='[]'
+  local download_defaults='[]'
+  if [[ "${step_type}" == plan ]]; then
+    upload_defaults='[{
+      "from": "'"${build_dir}/terraform.tfplan"'",
+      "to": "'"${build_dir}/${workspace}.tfplan"'"
+    }]'
+  else
+    download_defaults='[{
+      "from": "'"${build_dir}/${workspace}.tfplan"'",
+      "to": "'"${build_dir}/terraform.tfplan"'"
+    }]'
+  fi
+
+  jq -c \
+    --arg workspace "${workspace}" \
+    --arg step_type "${step_type}" \
+    --arg plugin_version "${_bk_artifacts_plugin_version}" \
+    --argjson upload_defaults "${upload_defaults}" \
+    --argjson download_defaults "${download_defaults}" \
+    -f "${TOOLBOX_HOME}/lib/artifacts.jq" \
+    <<< "${config_json}"
+}
+
+##
 ## Print a Terraform plan step for each workspace.
 ##
 _bk_tf_plan_steps() {
@@ -135,17 +166,11 @@ _bk_tf_plan_steps() {
     return 0
   fi
 
-  local workspace queue uploads downloads protected_branches unprotected_branches
+  local workspace queue uploads downloads protected_branches unprotected_branches artifact_plugin
   while IFS=$'\t' read -r workspace queue; do
     protected_branches="$(_bk_tf_protected_branches_for_workspace "${workspace}")"
     unprotected_branches="$(_bk_tf_unprotected_branches_for_workspace "${workspace}")"
-
-    uploads="$(jq -c '[{
-      "from": "'"${build_dir}/terraform.tfplan"'",
-      "to": "'"${build_dir}/${workspace}.tfplan"'"
-    }] + .buildkite.artifacts.upload // []' <<< "${config_json}")"
-    downloads="$(jq -c \
-      '.buildkite.artifacts.download // []' <<< "${config_json}")"
+    artifact_plugin="$(_bk_tf_artifacts_plugin "${workspace}" plan)"
 
     cat << EOF
 - label: ":terraform: Plan [${workspace}]"
@@ -154,9 +179,7 @@ _bk_tf_plan_steps() {
   - make terraform-plan WORKSPACE=${workspace}
   - make buildkite-plan-annotate WORKSPACE=${workspace}
   plugins:
-  - artifacts#${_bk_artifacts_plugin_version}:
-      upload: ${uploads}
-      download: ${downloads}
+  - ${artifact_plugin}
   agents:
     queue: ${queue}
   retry:
@@ -170,9 +193,7 @@ _bk_tf_plan_steps() {
   - make terraform-plan-local WORKSPACE=${workspace}
   - make buildkite-plan-annotate WORKSPACE=${workspace}
   plugins:
-  - artifacts#${_bk_artifacts_plugin_version}:
-      upload: ${uploads}
-      download: ${downloads}
+  - ${artifact_plugin}
   agents:
     queue: ${queue}
   retry:
@@ -238,25 +259,17 @@ _bk_tf_apply_steps_filter() {
     match_filter="| map(select(${match_condition}))"
   fi
 
-  local workspace queue uploads downloads protected_branches
+  local workspace queue uploads downloads protected_branches artifact_plugin
   while IFS=$'\t' read -r workspace queue; do
     protected_branches="$(_bk_tf_protected_branches_for_workspace "${workspace}")"
-
-    uploads="$(jq -c \
-      '.buildkite.artifacts.upload // []' <<< "${config_json}")"
-    downloads="$(jq -c '[{
-      "from": "'"${build_dir}/${workspace}.tfplan"'",
-      "to": "'"${build_dir}/terraform.tfplan"'"
-    }] + .buildkite.artifacts.download // []' <<< "${config_json}")"
+    artifact_plugin="$(_bk_tf_artifacts_plugin "${workspace}" apply)"
 
     cat << EOF
 - label: ":terraform: Apply [${workspace}]"
   branches: "${protected_branches}"
   command: make terraform-apply WORKSPACE=${workspace}
   plugins:
-  - artifacts#${_bk_artifacts_plugin_version}:
-      upload: ${uploads}
-      download: ${downloads}
+  - ${artifact_plugin}
   agents:
     queue: ${queue}
   retry:
