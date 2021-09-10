@@ -166,17 +166,22 @@ buildkite:
   # (Optional)
   # Buildkite artifact management section. This section determines how the Buildkite artifacts plugin
   # (https://github.com/buildkite-plugins/artifacts-buildkite-plugin) should be configured for Terraform
-  # plan and apply steps.
+  # plan and apply steps. The "from" and "to" properties below may make use of the ${workspace} variable
+  # which will be replaced with the name of the Terraform workspace associated with the upload/download.
   artifacts:
+  - # (Required)
+    # The type of steps that should download and/or upload these artifacts. Acceptable values are "plan"
+    # and "apply".
+    step_types: [plan, apply]
     # (Optional)
     # Artifact download configuration section.
     download:
     - from: target/package.zip
-      to: target/package.zip
+      to: target/${workspace}.zip
     # (Optional)
     # Artifact upload configuration section.
     upload:
-    - from: target/package.zip
+    - from: target/${workspace}.zip
       to: target/package.zip
 ```
 

@@ -120,38 +120,48 @@
           "pattern": "^(block|wait)$"
         },
         "artifacts": {
+          "type": "array",
+          "items": {
           "type": "object",
-          "additionalProperties": false,
-          "required": [],
-          "properties": {
-            "upload": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["from", "to"],
-                "properties": {
-                  "from": {
-                    "type": "string"
-                  },
-                  "to": {
-                    "type": "string"
+            "additionalProperties": false,
+            "required": ["step_types"],
+            "properties": {
+              "step_types": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^(plan|apply)$"
+                }
+              },
+              "upload": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["from"],
+                  "properties": {
+                    "from": {
+                      "type": "string"
+                    },
+                    "to": {
+                      "type": "string"
+                    }
                   }
                 }
-              }
-            },
-            "download": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["from", "to"],
-                "properties": {
-                  "from": {
-                    "type": "string"
-                  },
-                  "to": {
-                    "type": "string"
+              },
+              "download": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["from"],
+                  "properties": {
+                    "from": {
+                      "type": "string"
+                    },
+                    "to": {
+                      "type": "string"
+                    }
                   }
                 }
               }
