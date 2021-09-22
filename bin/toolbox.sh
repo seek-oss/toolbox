@@ -62,6 +62,10 @@ case "${_arg_command1}" in
   buildkite)
     case "${_arg_command2}" in
       pipeline) bk_pipeline ;;
+      pipeline-begin-steps) bk_pipeline_begin_steps ;;
+      pipeline-check-steps) bk_pipeline_check_steps ;;
+      pipeline-plan-steps) bk_tf_plan_steps ;;
+      pipeline-apply-steps) bk_tf_apply_steps ;;
       plan-annotate) bk_plan_annotate ;;
       *)
         die "Unrecognised Buildkite command: ${_arg_command2}"
