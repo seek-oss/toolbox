@@ -34,6 +34,10 @@ Second-level command.
             - lint
           The 'buildkite' command accepts the following:
             - pipeline
+            - pipeline-begin-steps
+            - pipeline-check-steps
+            - pipeline-plan-steps
+            - pipeline-apply-steps
             - plan-annotate
           The 'shell' command accepts the following:
             - shfmt

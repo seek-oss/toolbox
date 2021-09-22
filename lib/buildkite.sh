@@ -16,20 +16,30 @@ _bk_artifacts_plugin_version=v1.4.0
 ## Print the Buildkite pipeline to stdout.
 ##
 bk_pipeline() {
-  _bk_begin_steps
+  bk_pipeline_begin_steps
   _bk_tf_lint_step
   _bk_sh_lint_step
   _bk_tf_validate_step
   _bk_snyk_steps
   _bk_wait_step
-  _bk_tf_plan_steps
-  _bk_tf_apply_steps
+  bk_tf_plan_steps
+  bk_tf_apply_steps
+}
+
+##
+## Print all Buildkite pipeline lint and validate steps.
+##
+bk_pipeline_check_steps() {
+  _bk_tf_lint_step
+  _bk_sh_lint_step
+  _bk_tf_validate_step
+  _bk_snyk_steps
 }
 
 ##
 ## Print beginning of the Buildkite pipeline steps.
 ##
-_bk_begin_steps() {
+bk_pipeline_begin_steps() {
   echo 'steps:'
 }
 
@@ -159,7 +169,7 @@ _bk_tf_artifacts_plugin() {
 ##
 ## Print a Terraform plan step for each workspace.
 ##
-_bk_tf_plan_steps() {
+bk_tf_plan_steps() {
   local total_workspaces
   total_workspaces="$(_bk_tf_total_workspaces)"
   if [[ "${total_workspaces}" == 0 ]]; then
@@ -215,7 +225,7 @@ EOF
 ##
 ## Wait/Block -> Apply Non-Prod -> Wait/Block -> Apply Prod
 ##
-_bk_tf_apply_steps() {
+bk_tf_apply_steps() {
   local total_workspaces
   total_workspaces="$(_bk_tf_total_workspaces)"
   if [[ "${total_workspaces}" == 0 ]]; then
