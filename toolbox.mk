@@ -1,8 +1,11 @@
 # Version of Toolbox to use.
 TOOLBOX_VERSION ?= latest
 
-# Toolbox Docker image.
-TOOLBOX_IMAGE ?= seek/toolbox:$(TOOLBOX_VERSION)
+# Toolbox Docker image. Default image is exposed as a separate variable to
+# allow importing Makefiles to override TOOLBOX_IMAGE but still retain a
+# reference to the default to use to specify as a base image build arg.
+DEFAULT_TOOLBOX_IMAGE := seek/toolbox:$(TOOLBOX_VERSION)
+TOOLBOX_IMAGE         ?= $(DEFAULT_TOOLBOX_IMAGE)
 
 # The TOOLBOX_CONFIG_FILE variable can be specified by the caller to override
 # the default config file locations.
@@ -16,6 +19,12 @@ WORKSPACE ?=
 # this variable may be set to true when working locally and you know that
 # Terraform has already been initialised for the project.
 SKIP_INIT ?= false
+
+# The PRE_TOOLBOX_HOOK can be used to specify a Makefile rule that should be
+# run prior to the Toolbox container being run. This can be used to do things
+# like build a local custom Toolbox image or log in to a Docker registry so
+# that a remote custom Toolbox image can be used.
+PRE_TOOLBOX_HOOK ?=
 
 # The Buildkite pipeline slug is used when generating the pipeline document.
 # When running on an agent the BUILDKITE_PIPELINE_SLUG will be present.
@@ -123,7 +132,7 @@ clean:
 ##
 .PHONY: toolbox-version toolbox-update toolbox-upgrade
 toolbox-update: toolbox-upgrade
-toolbox-version toolbox-upgrade:
+toolbox-version toolbox-upgrade: $(PRE_TOOLBOX_HOOK)
 	@$(call banner,$@)
 	@$(call toolbox,toolbox internal "$(@:toolbox-%=%)")
 
@@ -131,7 +140,7 @@ toolbox-version toolbox-upgrade:
 ## Run a Toolbox Bash shell.
 ##
 .PHONY: toolbox-bash
-toolbox-bash:
+toolbox-bash: $(PRE_TOOLBOX_HOOK)
 	@$(call banner,$@)
 	@$(call toolbox_tty,bash)
 
@@ -139,7 +148,7 @@ toolbox-bash:
 ## Terraform targets that DON'T require a workspace.
 ##
 .PHONY: terraform-init terraform-validate terraform-lint
-terraform-init terraform-validate terraform-lint:
+terraform-init terraform-validate terraform-lint: $(PRE_TOOLBOX_HOOK)
 	@$(call banner,$@)
 	@$(call toolbox,toolbox -s "$(SKIP_INIT)" terraform "$(@:terraform-%=%)")
 
@@ -155,23 +164,16 @@ endif
 ##
 ## Terraform targets that DO require a workspace (non-interactive).
 ##
-.PHONY: terraform-workspace terraform-plan terraform-plan-destroy-local terraform-plan-local terraform-apply terraform-refresh terraform-unlock
-terraform-workspace terraform-plan terraform-plan-destroy-local terraform-plan-local terraform-apply terraform-refresh terraform-unlock: terraform-ensure-workspace
+.PHONY: terraform-workspace terraform-plan terraform-plan-destroy-local terraform-plan-local terraform-apply terraform-refresh terraform-unlock terraform-output terraform-output-json
+terraform-workspace terraform-plan terraform-plan-destroy-local terraform-plan-local terraform-apply terraform-refresh terraform-unlock terraform-output terraform-output-json: terraform-ensure-workspace $(PRE_TOOLBOX_HOOK)
 	@$(call banner,$@)
-	@$(call toolbox,toolbox -w "$(WORKSPACE)" -s "$(SKIP_INIT)" terraform "$(@:terraform-%=%)")
-
-##
-## Terraform targets that DO require a workspace (non-interactive).
-##
-.PHONY: terraform-output terraform-output-json
-terraform-output terraform-output-json: terraform-ensure-workspace
 	@$(call toolbox,toolbox -w "$(WORKSPACE)" -s "$(SKIP_INIT)" terraform "$(@:terraform-%=%)")
 
 ##
 ## Terraform targets that DO require a workspace (interactive).
 ##
 .PHONY: terraform-destroy terraform-console
-terraform-destroy terraform-console: terraform-ensure-workspace
+terraform-destroy terraform-console: terraform-ensure-workspace $(PRE_TOOLBOX_HOOK)
 	@$(call banner,$@)
 	@$(call toolbox_tty,toolbox -w "$(WORKSPACE)" -s "$(SKIP_INIT)" terraform "$(@:terraform-%=%)")
 
@@ -179,7 +181,7 @@ terraform-destroy terraform-console: terraform-ensure-workspace
 ## Buildkite targets that DO require a workspace
 ##
 .PHONY: buildkite-pipeline
-buildkite-pipeline:
+buildkite-pipeline: $(PRE_TOOLBOX_HOOK)
 	@$(call banner,$@)
 	@$(call toolbox,toolbox buildkite "$(@:buildkite-%=%)")
 
@@ -187,7 +189,7 @@ buildkite-pipeline:
 ## Buildkite targets that DON'T require a workspace
 ##
 .PHONY: buildkite-plan-annotate
-buildkite-plan-annotate:
+buildkite-plan-annotate: $(PRE_TOOLBOX_HOOK)
 	@$(call banner,$@)
 	@$(call toolbox,toolbox -w "$(WORKSPACE)" buildkite "$(@:buildkite-%=%)")
 
@@ -195,7 +197,7 @@ buildkite-plan-annotate:
 ## Shell targets.
 ##
 .PHONY: shell-shfmt shell-shellcheck shell-lint
-shell-shfmt shell-shellcheck shell-lint:
+shell-shfmt shell-shellcheck shell-lint: $(PRE_TOOLBOX_HOOK)
 	@$(call banner,$@)
 	@$(call toolbox,toolbox shell "$(@:shell-%=%)")
 
@@ -203,6 +205,6 @@ shell-shfmt shell-shellcheck shell-lint:
 ## Snyk targets.
 ##
 .PHONY: snyk-project snyk-app-test snyk-iac-test
-snyk-project snyk-app-test snyk-iac-test:
+snyk-project snyk-app-test snyk-iac-test: $(PRE_TOOLBOX_HOOK)
 	@$(call banner,$@)
 	@$(call toolbox,toolbox snyk "$(@:snyk-%=%)")
