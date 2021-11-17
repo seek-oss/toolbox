@@ -1,10 +1,14 @@
 # Version of Toolbox to use.
 TOOLBOX_VERSION ?= latest
 
+ifeq ($(shell uname -m),arm64)
+    M1_TAG := -arm64
+endif
+
 # Toolbox Docker image. Default image is exposed as a separate variable to
 # allow importing Makefiles to override TOOLBOX_IMAGE but still retain a
 # reference to the default to use to specify as a base image build arg.
-DEFAULT_TOOLBOX_IMAGE := seek/toolbox:$(TOOLBOX_VERSION)
+DEFAULT_TOOLBOX_IMAGE := seek/toolbox:$(TOOLBOX_VERSION)$(M1_TAG)
 TOOLBOX_IMAGE         ?= $(DEFAULT_TOOLBOX_IMAGE)
 
 # The TOOLBOX_CONFIG_FILE variable can be specified by the caller to override

@@ -16,6 +16,10 @@ build:
 	@docker build \
 		--build-arg TOOLBOX_VERSION=$(RELEASE_VERSION) \
 		-t seek/toolbox:$(RELEASE_VERSION) .
+	@docker build \
+		-f Dockerfile.arm64 \
+		--build-arg TOOLBOX_VERSION=$(RELEASE_VERSION) \
+		-t seek/toolbox:$(RELEASE_VERSION)-arm64 .
 
 ##
 ## Pushes the Toolbox image to DockerHub.
@@ -24,6 +28,7 @@ build:
 push:
 	@$(call banner,$@)
 	@docker push seek/toolbox:$(RELEASE_VERSION)
+	@docker push seek/toolbox:$(RELEASE_VERSION)-arm64
 
 ##
 ## Tags and pushes a latest tag for the Toolbox image.
