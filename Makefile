@@ -15,7 +15,7 @@ build:
 	@$(call banner,$@)
 	@docker build \
 		--build-arg TOOLBOX_VERSION=$(RELEASE_VERSION) \
-		-t seek/toolbox:$(RELEASE_VERSION) .
+		-t seek/toolbox:$(RELEASE_VERSION)-amd64 .
 	@docker build \
 		-f Dockerfile.arm64 \
 		--build-arg TOOLBOX_VERSION=$(RELEASE_VERSION) \
@@ -27,8 +27,13 @@ build:
 .PHONY: push
 push:
 	@$(call banner,$@)
-	@docker push seek/toolbox:$(RELEASE_VERSION)
+	@docker push seek/toolbox:$(RELEASE_VERSION)-amd64
 	@docker push seek/toolbox:$(RELEASE_VERSION)-arm64
+	@docker docker manifest create seek/toolbox:$(RELEASE_VERSION) \
+		--amend seek/toolbox:$(RELEASE_VERSION)-amd64 \
+		--amend seek/toolbox:$(RELEASE_VERSION)-arm64
+	@docker docker manifest push seek/toolbox:$(RELEASE_VERSION)
+
 
 ##
 ## Tags and pushes a latest tag for the Toolbox image.
@@ -36,8 +41,13 @@ push:
 .PHONY: push-latest
 push-latest:
 	@$(call banner,$@)
-	@docker tag seek/toolbox:$(RELEASE_VERSION) seek/toolbox:latest
-	@docker push seek/toolbox:latest
+	@docker tag seek/toolbox:$(RELEASE_VERSION)-amd64 seek/toolbox:latest-amd64
+	@docker tag seek/toolbox:$(RELEASE_VERSION)-arm64 seek/toolbox:latest-arm64
+	@docker push seek/toolbox:latest-amd64
+	@docker push seek/toolbox:latest-arm64
+	@docker docker manifest create seek/toolbox:latest \
+		--amend seek/toolbox:$(RELEASE_VERSION)-amd64 \
+		--amend seek/toolbox:$(RELEASE_VERSION)-arm64
 
 ##
 ## Creates a pinned version of toolbox.mk.
