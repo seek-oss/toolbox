@@ -78,6 +78,7 @@ define HELP
 |------------------------------+----------------------------------------------------------------------------------|
 | terraform-lint               | Lints Terraform files in the current repository.                                 |
 | terraform-init               | Initialises Terraform.                                                           |
+| terraform-upgrade            | Upgrade Terraform modules and providers with -upgrade option.                                                           |
 | terraform-validate           | Validates Terraform files in the current repository.                             |
 | terraform-workspace          | Selects the Terraform workspace. WORKSPACE must be specified.                    |
 | terraform-output             | Prints Terraform outputs in HCL format. WORKSPACE must be specified.             |
