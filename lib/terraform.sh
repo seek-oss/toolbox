@@ -41,6 +41,31 @@ tf_init() {
 }
 
 ##
+## Initialise Terraform with upgrade option.
+##
+tf_upgrade() {
+  if [[ "${_arg_skip_init}" == true ]]; then
+    info_msg "Skipping Terraform initialisation"
+    return 0
+  fi
+
+  info_msg "Initialising Terraform with upgrade"
+
+  local backend_bucket
+  backend_bucket="terraform-$(current_aws_account_id)"
+
+  rm -rf .terraform/terraform.tfstate .terraform/environment
+  terraform init \
+    -upgrade \
+    -backend-config=region="${_tf_global_region}" \
+    -backend-config=bucket="${backend_bucket}" \
+    -backend-config=key=terraform.tfstate \
+    -backend-config=dynamodb_table=terraform >&2
+
+  echo
+}
+
+##
 ## Validate the Terraform files.
 ##
 tf_validate() {

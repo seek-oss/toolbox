@@ -41,6 +41,7 @@ case "${_arg_command1}" in
   terraform)
     case "${_arg_command2}" in
       init) tf_init ;;
+      upgrade) tf_upgrade ;;
       workspace) tf_workspace ;;
       lint) tf_lint ;;
       validate) tf_validate ;;

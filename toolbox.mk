@@ -153,6 +153,14 @@ terraform-init terraform-validate terraform-lint: $(PRE_TOOLBOX_HOOK)
 	@$(call toolbox,toolbox -s "$(SKIP_INIT)" terraform "$(@:terraform-%=%)")
 
 ##
+## Terraform init with -upgrade option, this DOES NOT require a workspace.
+##
+.PHONY: terraform-upgrade
+terraform-upgrade: $(PRE_TOOLBOX_HOOK)
+	@$(call banner,$@)
+	@$(call toolbox,toolbox -s "$(SKIP_INIT)" terraform "$(@:terraform-%=%)")
+
+##
 ## Ensures that a WORKSPACE variable has been specified.
 ##
 .PHONY: terraform-ensure-workspace
