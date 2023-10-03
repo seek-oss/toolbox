@@ -82,8 +82,8 @@ tf_workspace() {
       current_workspace="$(terraform workspace show)"
       if [[ "${current_workspace}" != "${_arg_workspace}" ]]; then
         info_msg "Selecting Terraform workspace ${_arg_workspace}"
-        terraform workspace new "${_arg_workspace}" 2> /dev/null || true
-        terraform workspace select "${_arg_workspace}" > /dev/null
+        terraform workspace new "${_arg_workspace}" || true
+        terraform workspace select "${_arg_workspace}"
       else
         info_msg "Terraform workspace ${_arg_workspace} is already selected"
       fi
