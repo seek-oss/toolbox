@@ -1,11 +1,9 @@
-FROM alpine:3.15.0
+FROM alpine:3.19.1
 
 ARG TOOLBOX_VERSION
 ENV TOOLBOX_VERSION="${TOOLBOX_VERSION}"
 ENV TOOLBOX_HOME=/usr/local/share/toolbox
 
-ARG GLIBC_VERSION=2.34-r0
-ARG AWSCLI_VERSION=2.7.7
 ARG TERRAFORM_VERSION=1.1.7
 ARG SHELLCHECK_VERSION=0.8.0
 ARG SHFMT_VERSION=3.4.3
@@ -16,26 +14,8 @@ ARG BUILDKITE_AGENT_VERSION=3.34.0
 
 # Install OS packages
 RUN apk add --no-cache \
-  bash ca-certificates curl docker git jq make ncurses openssh perl xz zip gzip
-
-# Install glibc compatibility for Alpine which is required to run AWS CLI V2. See comment here:
-# https://github.com/aws/aws-cli/issues/4685#issuecomment-615872019
-RUN curl -Lsfo /etc/apk/keys/sgerrand.rsa.pub \
-  "https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub" \
-  && curl -Lsfo glibc.apk \
-  "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk" \
-  && curl -sLo glibc-bin.apk \
-  "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk" \
-  && apk add --no-cache glibc.apk glibc-bin.apk \
-  && rm ./glibc.apk ./glibc-bin.apk
-
-# Install AWS CLI
-RUN curl -Lsfo awscliv2.zip \
-  "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-${AWSCLI_VERSION}.zip" \
-  && unzip -q awscliv2.zip \
-  && ./aws/install \
-  && aws --version \
-  && rm -rf ./aws ./awscliv2.zip
+  aws-cli bash ca-certificates curl docker git jq make ncurses openssh perl xz zip gzip \
+  && apk update
 
 # Install Terraform
 RUN curl -Lsfo terraform.zip \
