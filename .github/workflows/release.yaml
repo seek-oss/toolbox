@@ -23,8 +23,8 @@ jobs:
     - name: Pin toolbox.mk
       run: make pin RELEASE_VERSION=${GITHUB_REF#refs/tags/v}
     - name: Upload toolbox.mk
-      uses: alexellis/upload-assets@0.2.2
+      uses: softprops/action-gh-release@4634c16e79c963813287e889244c50009e7f0981
       with:
-        asset_paths: '["${{ env.RELEASE_ARCHIVE }}"]'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        files: '["${{ env.RELEASE_ARCHIVE }}"]'
+        token: ${{ secrets.GITHUB_TOKEN }}
+        repository: seek-oss/toolbox
