@@ -10,7 +10,7 @@ source /dev/null
 _bk_pipeline_slug="${BUILDKITE_PIPELINE_SLUG:-$(basename "$(pwd)")}"
 
 # Version of https://github.com/buildkite-plugins/artifacts-buildkite-plugin to use.
-_bk_artifacts_plugin_version=v1.4.0
+_bk_artifacts_plugin_version=v1.9.3
 
 ##
 ## Print the Buildkite pipeline to stdout.
