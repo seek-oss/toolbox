@@ -25,6 +25,6 @@ jobs:
     - name: Upload toolbox.mk
       uses: softprops/action-gh-release@4634c16e79c963813287e889244c50009e7f0981
       with:
-        files: '["${{ env.RELEASE_ARCHIVE }}"]'
+        files: ${{ env.RELEASE_ARCHIVE }}
         token: ${{ secrets.GITHUB_TOKEN }}
         repository: seek-oss/toolbox
