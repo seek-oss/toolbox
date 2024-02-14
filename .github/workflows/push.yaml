@@ -19,7 +19,7 @@ jobs:
       run: make shell-lint
     - name: Draft release
       if: github.ref == 'refs/heads/master'
-      uses: release-drafter/release-drafter@v5
+      uses: release-drafter/release-drafter@v6.0.0
       with:
         config-name: release-config.yaml
       env:
