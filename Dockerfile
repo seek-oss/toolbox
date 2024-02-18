@@ -14,7 +14,20 @@ ARG BUILDKITE_AGENT_VERSION=3.62.0
 
 # Install OS packages
 RUN apk add --no-cache \
-  aws-cli bash ca-certificates curl docker git jq make ncurses openssh perl xz zip gzip
+  aws-cli --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
+  bash \
+  ca-certificates \
+  curl \
+  docker \
+  git \
+  jq \
+  make \
+  ncurses \
+  openssh \
+  perl \
+  xz \
+  zip \
+  gzip
 
 # Install Terraform
 RUN curl -Lsfo terraform.zip \
