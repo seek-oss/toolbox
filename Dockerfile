@@ -27,7 +27,8 @@ RUN apk add --no-cache \
   perl \
   xz \
   zip \
-  gzip
+  gzip \
+  && aws --version
 
 # Install Terraform
 RUN curl -Lsfo terraform.zip \
