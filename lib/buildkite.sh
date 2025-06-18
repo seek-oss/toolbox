@@ -98,9 +98,9 @@ _bk_apm_environment_vars() {
 
   if [[ "${deployment_service}" != null ]]; then
     local environment="development"
-    local workspace is_production
+    local is_production
 
-    while IFS=$'\t' read -r workspace is_production; do
+    while IFS=$'\t' read -r is_production; do
     if [[ "${is_production}" == true ]]; then
       environment="production"
     fi
@@ -112,7 +112,7 @@ EOF
     done < <(jq -r \
       '.terraform.workspaces // []
       | map(select(.name == "'"${workspace_filter}"'"))
-      | map([.name, .is_production])[]
+      | map([.is_production])[]
       | @tsv' <<< "${config_json}")
   fi
 }
