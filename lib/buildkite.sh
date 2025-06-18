@@ -87,6 +87,36 @@ _bk_sh_lint_step() {
 EOF
 }
 
+
+##
+## Print the APM environment variables.
+##
+_bk_apm_environment_vars() {
+  local workspace_filter="${1}"
+  local deployment_service
+  deployment_service="$(config_value apm.service_name null)"
+
+  if [[ "${deployment_service}" != null ]]; then
+    local environment="development"
+    local workspace is_production
+
+    while IFS=$'\t' read -r workspace is_production; do
+    if [[ "${is_production}" == true ]]; then
+      environment="production"
+    fi
+  cat << EOF
+  env:
+    DD_DEPLOYMENT_ENVIRONMENT: ${environment}
+    DD_DEPLOYMENT_SERVICE: ${deployment_service}
+EOF
+    done < <(jq -r \
+      '.terraform.workspaces // []
+      | map(select(.name == "'"${workspace_filter}"'"))
+      | map([.name, .is_production])[]
+      | @tsv' <<< "${config_json}")
+  fi
+}
+
 ##
 ## Print step that lints Terraform files.
 ##
@@ -278,6 +308,7 @@ _bk_tf_apply_steps_filter() {
   concurrency: 1
   concurrency_group: ${_bk_pipeline_slug}/${workspace}
 EOF
+  _bk_apm_environment_vars "${workspace}"
   done < <(jq -r \
     '.terraform.workspaces // []
     '"${match_filter}"'

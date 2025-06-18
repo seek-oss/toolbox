@@ -170,6 +170,16 @@
         }
       }
     },
+    "apm": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "service_name": {
+          "type": "string"
+        }
+      }
+    },
     "snyk": {
       "type": "object",
       "additionalProperties": false,
