@@ -155,6 +155,14 @@ snyk:
     always_pass: false
 
 # (Optional)
+# APM configuration section.
+apm:
+  # (Optional)
+  # APM service name to use for submitting metrics to datadog.
+  # This is the name used for the CI pipelines.
+  service_name: my-service-name
+
+# (Optional)
 # Buildkite configuration section.
 buildkite:
   # (Optional)
