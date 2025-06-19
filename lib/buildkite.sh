@@ -87,7 +87,6 @@ _bk_sh_lint_step() {
 EOF
 }
 
-
 ##
 ## Print the APM environment variables.
 ##
@@ -101,10 +100,10 @@ _bk_apm_environment_vars() {
     local is_production
 
     while IFS=$'\t' read -r is_production; do
-    if [[ "${is_production}" == true ]]; then
-      environment="production"
-    fi
-  cat << EOF
+      if [[ "${is_production}" == true ]]; then
+        environment="production"
+      fi
+      cat << EOF
   env:
     DD_DEPLOYMENT_ENVIRONMENT: ${environment}
     DD_DEPLOYMENT_SERVICE: ${deployment_service}
@@ -308,7 +307,7 @@ _bk_tf_apply_steps_filter() {
   concurrency: 1
   concurrency_group: ${_bk_pipeline_slug}/${workspace}
 EOF
-  _bk_apm_environment_vars "${workspace}"
+    _bk_apm_environment_vars "${workspace}"
   done < <(jq -r \
     '.terraform.workspaces // []
     '"${match_filter}"'
