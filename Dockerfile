@@ -4,13 +4,13 @@ ARG TOOLBOX_VERSION
 ENV TOOLBOX_VERSION="${TOOLBOX_VERSION}"
 ENV TOOLBOX_HOME=/usr/local/share/toolbox
 
-ARG TERRAFORM_VERSION=1.9.8
+ARG TERRAFORM_VERSION=1.12.2
 ARG SHELLCHECK_VERSION=0.10.0
-ARG SHFMT_VERSION=3.10.0
-ARG YQ_VERSION=4.44.5
+ARG SHFMT_VERSION=3.12.0
+ARG YQ_VERSION=4.45.4
 ARG SCHMA_VERSION=1.0.0
-ARG SNYK_VERSION=1.1294.0
-ARG BUILDKITE_AGENT_VERSION=3.87.0
+ARG SNYK_VERSION=1.1297.3
+ARG BUILDKITE_AGENT_VERSION=3.101.0
 
 # Install OS packages
 RUN apk add --no-cache \
@@ -61,7 +61,7 @@ RUN curl -Lsfo /usr/local/bin/schma \
 
 # Install Snyk
 RUN curl -Lsfo /usr/local/bin/snyk \
-  "https://github.com/snyk/snyk/releases/download/v${SNYK_VERSION}/snyk-alpine" \
+  "https://github.com/snyk/cli/releases/download/v${SNYK_VERSION}/snyk-alpine" \
   && chmod +x /usr/local/bin/snyk
 
 # Install the buildkite-agent
