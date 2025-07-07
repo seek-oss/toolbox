@@ -193,6 +193,11 @@ buildkite:
       to: target/package.zip
 ```
 
+## Updating Toolbox
+
+To update Toolbox, get the latest versions of the tools by running the script [get-latest-toolbox-versions.sh](scripts/get-latest-toolbox-versions.sh).
+Update the [Dockerfile](Dockerfile) accordingly by bumping up the software versions. When this is merged back to the master branch, draft a new [release](https://github.com/seek-oss/toolbox/releases).
+
 <!-- Links -->
 [01]: Dockerfile
 [02]: toolbox.mk
