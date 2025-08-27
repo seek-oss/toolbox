@@ -92,6 +92,7 @@ define HELP
 | terraform-unlock             | Force unlocks the Terraform state. WORKSPACE must be specified.                  |
 |------------------------------+----------------------------------------------------------------------------------|
 | buildkite-pipeline           | Prints the generated Buildkite pipeline to stdout.                               |
+| buildkite-pipeline-plan      | Prints the generated Buildkite pipeline to stdout without apply				  |
 | buildkite-plan-annotate      | Annotates the current Buildkite pipeline with details of the Terraform plan.     |
 |------------------------------+----------------------------------------------------------------------------------|
 | shell-shfmt                  | Runs shfmt against shell files in the current repository.                        |
@@ -184,6 +185,14 @@ terraform-destroy terraform-console: terraform-ensure-workspace $(PRE_TOOLBOX_HO
 buildkite-pipeline: $(PRE_TOOLBOX_HOOK)
 	@$(call banner,$@)
 	@$(call toolbox,toolbox buildkite "$(@:buildkite-%=%)")
+
+##
+## Buildkite targets that DON'T require a workspace
+##
+.PHONY: buildkite-pipeline-plan
+buildkite-pipeline-plan: $(PRE_TOOLBOX_HOOK)
+	@$(call banner,$@)
+	@$(call toolbox,toolbox -w "$(WORKSPACE)" buildkite "$(@:buildkite-%=%)")
 
 ##
 ## Buildkite targets that DON'T require a workspace

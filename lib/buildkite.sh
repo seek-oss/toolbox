@@ -27,6 +27,20 @@ bk_pipeline() {
 }
 
 ##
+## Print the Buildkite pipeline to stdout only up to plan
+##
+bk_pipeline_plan() {
+  _bk_begin_steps
+  _bk_tf_lint_step
+  _bk_sh_lint_step
+  _bk_tf_validate_step
+  _bk_snyk_steps
+  _bk_wait_step
+  _bk_tf_plan_steps
+}
+
+
+##
 ## Print beginning of the Buildkite pipeline steps.
 ##
 _bk_begin_steps() {
