@@ -16,20 +16,25 @@ _bk_artifacts_plugin_version=v1.9.3
 ## Print the Buildkite pipeline to stdout.
 ##
 bk_pipeline() {
-  _bk_begin_steps
-  _bk_tf_lint_step
-  _bk_sh_lint_step
-  _bk_tf_validate_step
-  _bk_snyk_steps
-  _bk_wait_step
-  _bk_tf_plan_steps
-  _bk_tf_apply_steps
+  _bk_pipeline_steps false
 }
 
 ##
 ## Print the Buildkite pipeline to stdout only up to plan
+## Passing arguments for plan_only
 ##
 bk_pipeline_plan() {
+  _bk_pipeline_steps true
+}
+
+##
+## Internal function to generate pipeline steps
+## Args:
+##   $1 - plan_only (true/false) - if true, only generate up to plan steps
+##
+_bk_pipeline_steps() {
+  local plan_only="${1:-false}"
+
   _bk_begin_steps
   _bk_tf_lint_step
   _bk_sh_lint_step
@@ -37,6 +42,10 @@ bk_pipeline_plan() {
   _bk_snyk_steps
   _bk_wait_step
   _bk_tf_plan_steps
+
+  if [[ "$plan_only" != "true" ]]; then
+    _bk_tf_apply_steps
+  fi
 }
 
 
