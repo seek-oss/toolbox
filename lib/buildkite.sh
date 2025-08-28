@@ -251,14 +251,12 @@ _bk_tf_plan_local_steps() {
     return 0
   fi
 
-  local workspace queue protected_branches artifact_plugin
+  local workspace queue artifact_plugin
   while IFS=$'\t' read -r workspace queue; do
-    protected_branches="$(_bk_tf_protected_branches_for_workspace "${workspace}")"
     artifact_plugin="$(_bk_tf_artifacts_plugin "${workspace}" plan)"
 
     cat << EOF
-- label: ":terraform: Tentative Plan [${workspace}]"
-  branches: "${protected_branches}"
+- label: ":terraform: Plan [${workspace}]"
   command:
   - make terraform-plan-local WORKSPACE=${workspace}
   - make buildkite-plan-annotate WORKSPACE=${workspace}
