@@ -23,7 +23,7 @@ bk_pipeline() {
   _bk_snyk_steps
   _bk_wait_step
 
-  if [[ "${TOOLBOX_PLAN_ONLY:-false}" == "true" ]]; then
+  if [[ "${TOOLBOX_BUILDKITE_PLAN_ONLY:-false}" == "true" ]]; then
     _bk_tf_plan_local_steps
   else
     _bk_tf_plan_steps
