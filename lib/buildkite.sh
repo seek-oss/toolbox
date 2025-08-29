@@ -22,8 +22,13 @@ bk_pipeline() {
   _bk_tf_validate_step
   _bk_snyk_steps
   _bk_wait_step
-  _bk_tf_plan_steps
-  _bk_tf_apply_steps
+
+  if [[ "${TOOLBOX_BUILDKITE_PLAN_ONLY:-false}" == "true" ]]; then
+    _bk_tf_plan_local_steps
+  else
+    _bk_tf_plan_steps
+    _bk_tf_apply_steps
+  fi
 }
 
 ##
@@ -228,6 +233,42 @@ _bk_tf_plan_steps() {
   retry:
     manual:
       permit_on_passed: true
+EOF
+  done < <(jq -r \
+    '.terraform.workspaces // []
+    | map(select(.queue != null))
+    | map([.name, .queue])[]
+    | @tsv' <<< "${config_json}")
+}
+
+##
+## Print local-only Terraform plan steps for each workspace.
+##
+_bk_tf_plan_local_steps() {
+  local total_workspaces
+  total_workspaces="$(_bk_tf_total_workspaces)"
+  if [[ "${total_workspaces}" == 0 ]]; then
+    return 0
+  fi
+
+  local workspace queue artifact_plugin
+  while IFS=$'\t' read -r workspace queue; do
+    artifact_plugin="$(_bk_tf_artifacts_plugin "${workspace}" plan)"
+
+    cat << EOF
+- label: ":terraform: Plan [${workspace}]"
+  command:
+  - make terraform-plan-local WORKSPACE=${workspace}
+  - make buildkite-plan-annotate WORKSPACE=${workspace}
+  plugins:
+  - ${artifact_plugin}
+  agents:
+    queue: ${queue}
+  retry:
+    manual:
+      permit_on_passed: true
+  concurrency: 1
+  concurrency_group: ${_bk_pipeline_slug}/${workspace}
 EOF
   done < <(jq -r \
     '.terraform.workspaces // []
