@@ -15,15 +15,15 @@ build:
 	@$(call banner,$@)
 	@docker build \
 		--build-arg TOOLBOX_VERSION=$(RELEASE_VERSION) \
-		-t seek/toolbox:$(RELEASE_VERSION) .
+		-t ghcr.io/seek-oss/toolbox:$(RELEASE_VERSION) .
 
 ##
-## Pushes the Toolbox image to DockerHub.
+## Pushes the Toolbox image to GitHub Container Registry.
 ##
 .PHONY: push
 push:
 	@$(call banner,$@)
-	@docker push seek/toolbox:$(RELEASE_VERSION)
+	@docker push ghcr.io/seek-oss/toolbox:$(RELEASE_VERSION)
 
 ##
 ## Tags and pushes a latest tag for the Toolbox image.
@@ -31,8 +31,8 @@ push:
 .PHONY: push-latest
 push-latest:
 	@$(call banner,$@)
-	@docker tag seek/toolbox:$(RELEASE_VERSION) seek/toolbox:latest
-	@docker push seek/toolbox:latest
+	@docker tag ghcr.io/seek-oss/toolbox:$(RELEASE_VERSION) ghcr.io/seek-oss/toolbox:latest
+	@docker push ghcr.io/seek-oss/toolbox:latest
 
 ##
 ## Creates a pinned version of toolbox.mk.

@@ -4,7 +4,7 @@ TOOLBOX_VERSION ?= latest
 # Toolbox Docker image. Default image is exposed as a separate variable to
 # allow importing Makefiles to override TOOLBOX_IMAGE but still retain a
 # reference to the default to use to specify as a base image build arg.
-DEFAULT_TOOLBOX_IMAGE := seek/toolbox:$(TOOLBOX_VERSION)
+DEFAULT_TOOLBOX_IMAGE := ghcr.io/seek-oss/toolbox:$(TOOLBOX_VERSION)
 TOOLBOX_IMAGE         ?= $(DEFAULT_TOOLBOX_IMAGE)
 
 # The TOOLBOX_CONFIG_FILE variable can be specified by the caller to override
