@@ -8,6 +8,7 @@ env:
 jobs:
   release:
     permissions:
+      contents: write
       packages: write
     name: Release Workflow
     runs-on: ubuntu-latest
