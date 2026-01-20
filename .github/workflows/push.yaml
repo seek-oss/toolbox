@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4.1.1
+      uses: actions/checkout@v6
       with:
         fetch-depth: 1
     - name: Build Toolbox image
@@ -19,7 +19,7 @@ jobs:
       run: make shell-lint
     - name: Draft release
       if: github.ref == 'refs/heads/master'
-      uses: release-drafter/release-drafter@v6.0.0
+      uses: release-drafter/release-drafter@v6
       with:
         config-name: release-config.yaml
       env:
