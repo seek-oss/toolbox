@@ -1,0 +1,1 @@
+**Please consider this project read-only**. We are happy for you to follow along with our work, copy it, fork it, raise Issues, etc. but we’re also wanting to minimise the overhead of managing contributions.
