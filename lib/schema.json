@@ -119,6 +119,19 @@
           "type": "string",
           "pattern": "^(block|wait)$"
         },
+        "deploy_pause_labels": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "non_production": {
+              "type": "string"
+            },
+            "production": {
+              "type": "string"
+            }
+          }
+        },
         "artifacts": {
           "type": "array",
           "items": {

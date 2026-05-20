@@ -172,6 +172,12 @@ buildkite:
   # "wait". The default is to block.
   deploy_pause_type: block
   # (Optional)
+  # Message text for manual deploy gates between Terraform plan and apply steps.
+  # :rocket: is prepended automatically. Defaults: "Deploy pre-production" and "Deploy production"
+  deploy_pause_labels:
+    non_production: "Deploy terraformed resources to pre-production"
+    production: "Deploy terraformed resources to production"
+  # (Optional)
   # Buildkite artifact management section. This section determines how the Buildkite artifacts plugin
   # (https://github.com/buildkite-plugins/artifacts-buildkite-plugin) should be configured for Terraform
   # plan and apply steps. The "from" and "to" properties below may make use of the ${workspace} variable

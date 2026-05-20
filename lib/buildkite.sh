@@ -46,6 +46,17 @@ _bk_wait_step() {
 }
 
 ##
+## Return the deploy block message for non-production or production gates.
+## Config key: buildkite.deploy_pause_labels.non_production | .production
+## The :rocket: prefix is added by _bk_block_step.
+##
+_bk_deploy_pause_label() {
+  local kind="${1}"
+  local default="${2}"
+  config_value "buildkite.deploy_pause_labels.${kind}" "${default}"
+}
+
+##
 ## Print block step.
 ##
 _bk_block_step() {
@@ -299,7 +310,9 @@ _bk_tf_apply_steps() {
   if [[ "${total_non_production_workspaces}" != 0 ]]; then
     local non_production_protected_branches
     non_production_protected_branches="$(_bk_tf_protected_branches_filter '.is_production != true')"
-    _bk_pause_step "Deploy pre-production" "${non_production_protected_branches}"
+    _bk_pause_step \
+      "$(_bk_deploy_pause_label non_production 'Deploy pre-production')" \
+      "${non_production_protected_branches}"
 
     # Apply non-production workspaces.
     _bk_tf_apply_steps_filter '.is_production != true'
@@ -312,7 +325,9 @@ _bk_tf_apply_steps() {
   if [[ "${total_production_workspaces}" != 0 ]]; then
     local production_protected_branches
     production_protected_branches="$(_bk_tf_protected_branches_filter '.is_production == true')"
-    _bk_pause_step "Deploy production" "${production_protected_branches}"
+    _bk_pause_step \
+      "$(_bk_deploy_pause_label production 'Deploy production')" \
+      "${production_protected_branches}"
 
     # Apply production workspaces.
     _bk_tf_apply_steps_filter '.is_production == true'
