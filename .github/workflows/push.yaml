@@ -59,7 +59,7 @@ jobs:
         docker run --rm toolbox:test-${{ matrix.arch }} schma --version
         docker run --rm toolbox:test-${{ matrix.arch }} snyk --version
         docker run --rm toolbox:test-${{ matrix.arch }} buildkite-agent --version
-        docker run --rm toolbox:test-${{ matrix.arch }} toolbox --version
+        docker run --rm toolbox:test-${{ matrix.arch }} toolbox internal version
         docker run --rm toolbox:test-${{ matrix.arch }} docker --version
         docker run --rm toolbox:test-${{ matrix.arch }} git --version
         docker run --rm toolbox:test-${{ matrix.arch }} jq --version
