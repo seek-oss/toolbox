@@ -1,0 +1,54 @@
+schemaVersion: 2.0.0
+
+commandTests:
+- name: aws-cli-installed
+  command: sh
+  args: ["-c", "aws --version"]
+
+- name: terraform-installed
+  command: sh
+  args: ["-c", "terraform version"]
+
+- name: shellcheck-installed
+  command: sh
+  args: ["-c", "shellcheck --version"]
+
+- name: shfmt-installed
+  command: sh
+  args: ["-c", "shfmt --version"]
+
+- name: yq-installed
+  command: sh
+  args: ["-c", "yq --version"]
+
+- name: schma-installed
+  command: sh
+  args: ["-c", "schma --version"]
+
+- name: snyk-installed
+  command: sh
+  args: ["-c", "snyk --version"]
+
+- name: buildkite-agent-installed
+  command: sh
+  args: ["-c", "buildkite-agent --version"]
+
+- name: toolbox-installed
+  command: sh
+  args: ["-c", "toolbox --help >/dev/null"]
+
+- name: docker-cli-installed
+  command: sh
+  args: ["-c", "docker --version"]
+
+- name: git-installed
+  command: sh
+  args: ["-c", "git --version"]
+
+- name: jq-installed
+  command: sh
+  args: ["-c", "jq --version"]
+
+- name: make-installed
+  command: sh
+  args: ["-c", "make --version"]
