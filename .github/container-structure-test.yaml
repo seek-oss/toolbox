@@ -1,54 +1,80 @@
-schemaVersion: 2.0.0
+schemaVersion: '2.0.0'
 
 commandTests:
-- name: aws-cli-installed
-  command: sh
-  args: ["-c", "aws --version"]
+  - name: 'aws-cli-installed'
+    setup: [['sh', '-c', 'which aws']]
+    command: 'aws'
+    args: ['--version']
+    excludedOutput: ['not found', 'command not found']
 
-- name: terraform-installed
-  command: sh
-  args: ["-c", "terraform version"]
+  - name: 'terraform-installed'
+    setup: [['sh', '-c', 'which terraform']]
+    command: 'terraform'
+    args: ['--version']
+    excludedOutput: ['not found', 'command not found']
 
-- name: shellcheck-installed
-  command: sh
-  args: ["-c", "shellcheck --version"]
+  - name: 'shellcheck-installed'
+    setup: [['sh', '-c', 'which shellcheck']]
+    command: 'shellcheck'
+    args: ['--version']
+    excludedOutput: ['not found', 'command not found']
 
-- name: shfmt-installed
-  command: sh
-  args: ["-c", "shfmt --version"]
+  - name: 'shfmt-installed'
+    setup: [['sh', '-c', 'which shfmt']]
+    command: 'shfmt'
+    args: ['--version']
+    excludedOutput: ['not found', 'command not found']
 
-- name: yq-installed
-  command: sh
-  args: ["-c", "yq --version"]
+  - name: 'yq-installed'
+    setup: [['sh', '-c', 'which yq']]
+    command: 'yq'
+    args: ['--version']
+    excludedOutput: ['not found', 'command not found']
 
-- name: schma-installed
-  command: sh
-  args: ["-c", "schma --version"]
+  - name: 'schma-installed'
+    setup: [['sh', '-c', 'which schma']]
+    command: 'schma'
+    args: ['--version']
+    excludedOutput: ['not found', 'command not found']
 
-- name: snyk-installed
-  command: sh
-  args: ["-c", "snyk --version"]
+  - name: 'snyk-installed'
+    setup: [['sh', '-c', 'which snyk']]
+    command: 'snyk'
+    args: ['--version']
+    excludedOutput: ['not found', 'command not found']
 
-- name: buildkite-agent-installed
-  command: sh
-  args: ["-c", "buildkite-agent --version"]
+  - name: 'buildkite-agent-installed'
+    setup: [['sh', '-c', 'which buildkite-agent']]
+    command: 'buildkite-agent'
+    args: ['--version']
+    excludedOutput: ['not found', 'command not found']
 
-- name: toolbox-installed
-  command: sh
-  args: ["-c", "toolbox --help >/dev/null"]
+  - name: 'toolbox-installed'
+    setup: [['sh', '-c', 'which toolbox']]
+    command: 'toolbox'
+    args: ['--version']
+    excludedOutput: ['not found', 'command not found']
 
-- name: docker-cli-installed
-  command: sh
-  args: ["-c", "docker --version"]
+  - name: 'docker-cli-installed'
+    setup: [['sh', '-c', 'which docker']]
+    command: 'docker'
+    args: ['--version']
+    excludedOutput: ['not found', 'command not found']
 
-- name: git-installed
-  command: sh
-  args: ["-c", "git --version"]
+  - name: 'git-installed'
+    setup: [['sh', '-c', 'which git']]
+    command: 'git'
+    args: ['--version']
+    excludedOutput: ['not found', 'command not found']
 
-- name: jq-installed
-  command: sh
-  args: ["-c", "jq --version"]
+  - name: 'jq-installed'
+    setup: [['sh', '-c', 'which jq']]
+    command: 'jq'
+    args: ['--version']
+    excludedOutput: ['not found', 'command not found']
 
-- name: make-installed
-  command: sh
-  args: ["-c", "make --version"]
+  - name: 'make-installed'
+    setup: [['sh', '-c', 'which make']]
+    command: 'make'
+    args: ['--version']
+    excludedOutput: ['not found', 'command not found']
