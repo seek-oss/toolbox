@@ -14,6 +14,14 @@ ARG SCHMA_VERSION=1.0.0
 ARG SNYK_VERSION=1.1297.3
 ARG BUILDKITE_AGENT_VERSION=3.101.0
 
+# Helper function to map architecture names
+RUN set -e && \
+  case "${TARGETARCH}" in \
+    amd64) echo "x86_64" > /tmp/shellcheck_arch && echo "snyk-alpine" > /tmp/snyk_binary ;; \
+    arm64) echo "aarch64" > /tmp/shellcheck_arch && echo "snyk-alpine-arm64" > /tmp/snyk_binary ;; \
+    *) echo "Unsupported architecture: ${TARGETARCH}" >&2 && exit 1 ;; \
+  esac
+
 # Install OS packages
 RUN apk add --no-cache \
   aws-cli \
@@ -40,12 +48,7 @@ RUN curl -Lsfo terraform.zip \
   && rm -rf ./terraform.zip
 
 # Install shellcheck
-RUN shellcheck_arch="${TARGETARCH}" \
-  && case "${TARGETARCH}" in \
-    amd64) shellcheck_arch=x86_64 ;; \
-    arm64) shellcheck_arch=aarch64 ;; \
-    *) echo "Unsupported architecture: ${TARGETARCH}" >&2; exit 1 ;; \
-  esac \
+RUN shellcheck_arch=$(cat /tmp/shellcheck_arch) \
   && curl -Lsfo shellcheck.tar.xz \
   "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.${shellcheck_arch}.tar.xz" \
   && tar -xf shellcheck.tar.xz \
@@ -68,8 +71,7 @@ RUN curl -Lsfo /usr/local/bin/schma \
   && chmod +x /usr/local/bin/schma
 
 # Install Snyk
-RUN snyk_binary=snyk-alpine \
-  && if [ "${TARGETARCH}" = "arm64" ]; then snyk_binary=snyk-alpine-arm64; fi \
+RUN snyk_binary=$(cat /tmp/snyk_binary) \
   && curl -Lsfo /usr/local/bin/snyk \
   "https://github.com/snyk/cli/releases/download/v${SNYK_VERSION}/${snyk_binary}" \
   && chmod +x /usr/local/bin/snyk
