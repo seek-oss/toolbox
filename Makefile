@@ -3,6 +3,9 @@ include toolbox.mk
 
 # Version of the Toolbox Docker image to build/push.
 RELEASE_VERSION ?= latest
+IMAGE_REPO ?= ghcr.io/seek-oss/toolbox
+DOCKER_PLATFORMS ?= linux/amd64,linux/arm64
+BUILDX_BUILDER ?= toolbox-multiarch
 
 # Release archive file that's uploaded to GitHub.
 RELEASE_ARCHIVE ?= $(build_dir)/toolbox.mk
@@ -11,19 +14,34 @@ RELEASE_ARCHIVE ?= $(build_dir)/toolbox.mk
 ## Build a new Toolbox Docker image.
 ##
 .PHONY: build
-build:
+build: buildx-ensure
 	@$(call banner,$@)
-	@docker build \
+	@docker buildx build \
+		--builder "$(BUILDX_BUILDER)" \
+		--load \
 		--build-arg TOOLBOX_VERSION=$(RELEASE_VERSION) \
-		-t ghcr.io/seek-oss/toolbox:$(RELEASE_VERSION) .
+		-t $(IMAGE_REPO):$(RELEASE_VERSION) .
+
+##
+## Ensure docker buildx is configured.
+##
+.PHONY: buildx-ensure
+buildx-ensure:
+	@docker buildx inspect "$(BUILDX_BUILDER)" >/dev/null 2>&1 || docker buildx create --name "$(BUILDX_BUILDER)" --driver docker-container --use >/dev/null
+	@docker buildx use "$(BUILDX_BUILDER)" >/dev/null
 
 ##
 ## Pushes the Toolbox image to GitHub Container Registry.
 ##
 .PHONY: push
-push:
+push: buildx-ensure
 	@$(call banner,$@)
-	@docker push ghcr.io/seek-oss/toolbox:$(RELEASE_VERSION)
+	@docker buildx build \
+		--builder "$(BUILDX_BUILDER)" \
+		--platform "$(DOCKER_PLATFORMS)" \
+		--build-arg TOOLBOX_VERSION=$(RELEASE_VERSION) \
+		-t $(IMAGE_REPO):$(RELEASE_VERSION) \
+		--push .
 
 ##
 ## Tags and pushes a latest tag for the Toolbox image.
@@ -31,8 +49,9 @@ push:
 .PHONY: push-latest
 push-latest:
 	@$(call banner,$@)
-	@docker tag ghcr.io/seek-oss/toolbox:$(RELEASE_VERSION) ghcr.io/seek-oss/toolbox:latest
-	@docker push ghcr.io/seek-oss/toolbox:latest
+	@docker buildx imagetools create \
+		--tag $(IMAGE_REPO):latest \
+		$(IMAGE_REPO):$(RELEASE_VERSION)
 
 ##
 ## Creates a pinned version of toolbox.mk.

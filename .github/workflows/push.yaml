@@ -24,3 +24,43 @@ jobs:
         config-name: release-config.yaml
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  container-validation:
+    name: Container Validation (${{ matrix.arch }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64, arm64]
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 1
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    - name: Build image for architecture
+      run: |
+        docker buildx build \
+          --platform linux/${{ matrix.arch }} \
+          --build-arg TOOLBOX_VERSION=ci-test \
+          --tag toolbox:test-${{ matrix.arch }} \
+          --load .
+    - name: Verify image tools
+      run: |
+        # Verify each required tool is present in the image
+        docker run --rm toolbox:test-${{ matrix.arch }} aws --version
+        docker run --rm toolbox:test-${{ matrix.arch }} terraform --version
+        docker run --rm toolbox:test-${{ matrix.arch }} shellcheck --version
+        docker run --rm toolbox:test-${{ matrix.arch }} shfmt --version
+        docker run --rm toolbox:test-${{ matrix.arch }} yq --version
+        docker run --rm toolbox:test-${{ matrix.arch }} schma --version
+        docker run --rm toolbox:test-${{ matrix.arch }} snyk --version
+        docker run --rm toolbox:test-${{ matrix.arch }} buildkite-agent --version
+        docker run --rm toolbox:test-${{ matrix.arch }} toolbox internal version
+        docker run --rm toolbox:test-${{ matrix.arch }} docker --version
+        docker run --rm toolbox:test-${{ matrix.arch }} git --version
+        docker run --rm toolbox:test-${{ matrix.arch }} jq --version
+        docker run --rm toolbox:test-${{ matrix.arch }} make --version
