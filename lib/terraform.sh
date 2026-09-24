@@ -35,7 +35,6 @@ tf_init() {
     -backend-config=region="${_tf_global_region}" \
     -backend-config=bucket="${backend_bucket}" \
     -backend-config=key=terraform.tfstate \
-    -backend-config=dynamodb_table=terraform \
     -backend-config=use_lockfile=true >&2
   echo
 }
